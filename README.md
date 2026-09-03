@@ -80,11 +80,11 @@ que **70%**.
 
 ## Equipe
 
-| RA | Nome |
+| Nome | RA |
 |---|---|
-| _(a preencher)_ | João Miguel |
-| _(a preencher)_ | Eric |
-| _(a preencher)_ | Bruno |
+| João Miguel Silva Salvalagio | 26014105-2 |
+| Bruno Koji Fujisaki | 24094977-2 |
+| Eric Delefrati Rocha Leite | 24023654-2 |
 
 ## Versão
 
