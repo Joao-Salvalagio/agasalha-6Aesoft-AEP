@@ -19,7 +19,9 @@ jobs:
           cache: maven
 
       - name: Build e testes com cobertura
-        run: ./mvnw -B verify
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -B verify
 
       - name: Publica relatorio JaCoCo
         if: always()
