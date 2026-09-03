@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nova Feature"
+  short_description: "Conduz uma tarefa nova ponta a ponta seguindo as regras do repositorio"
+  default_prompt: "Use $nova-feature para comecar. Se eu disser meu nome, identifique minha fatia em docs/divisao-tarefas.md e conduza a partir das issues."
