@@ -1,0 +1,32 @@
+[
+  {
+    "tipoPeca": "CASACO",
+    "tamanho": "M",
+    "genero": "UNISSEX",
+    "estadoConservacao": "USADO_BOM",
+    "nomeDoador": "Ana Souza",
+    "contatoDoador": "ana@exemplo.com",
+    "status": "DISPONIVEL",
+    "dataCadastro": "2026-06-01T10:00:00Z"
+  },
+  {
+    "tipoPeca": "COBERTOR",
+    "tamanho": "G",
+    "genero": "UNISSEX",
+    "estadoConservacao": "NOVO",
+    "nomeDoador": "Carlos Lima",
+    "contatoDoador": "(11) 90000-0000",
+    "status": "DISPONIVEL",
+    "dataCadastro": "2026-06-02T09:30:00Z"
+  },
+  {
+    "tipoPeca": "BLUSA",
+    "tamanho": "P",
+    "genero": "FEMININO",
+    "estadoConservacao": "USADO_REGULAR",
+    "nomeDoador": "Marina Alves",
+    "contatoDoador": "marina@exemplo.com",
+    "status": "RESERVADO",
+    "dataCadastro": "2026-06-03T14:15:00Z"
+  }
+]

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Testing"
+  short_description: "Escreve testes no menor nivel que da confianca: unit, controller ou integracao"
+  default_prompt: "Use $testing para cobrir o comportamento da issue com o menor tipo de teste adequado."
