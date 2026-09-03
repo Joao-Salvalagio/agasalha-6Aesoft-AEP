@@ -1,0 +1,17 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+*.class
+*.log
+
+.env
+
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+docs/superpowers/
+docs/planejamento.md
+PLANEJAMENTO.md
+retorno.txt
