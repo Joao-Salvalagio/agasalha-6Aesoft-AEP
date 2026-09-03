@@ -1,0 +1,39 @@
+services:
+  mongo:
+    image: mongo:7
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongo-express:
+    image: mongo-express:1.0.2-20
+    ports:
+      - "${MONGO_EXPRESS_PORT:-8081}:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  mongo-seed:
+    image: mongo:7
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_HOST: mongo
+      MONGO_DATABASE: ${MONGO_DATABASE:-agasalha}
+    entrypoint: ["sh", "/seed/seed.sh"]
+    volumes:
+      - ./scripts/seed:/seed:ro
+    restart: "no"
+
+volumes:
+  mongo-data:
