@@ -123,3 +123,19 @@ reescrito ou removido. Só é permitido **adicionar ao fim** em `docs/decisoes.m
 decisão dos 3.
 **Consequência:** o conjunto de governança nasceu completo no Sprint 0. Correções
 de rumo viram ADR novo, não edição silenciosa.
+
+## ADR-013 — Branches são permanentes
+
+**Contexto:** o histórico de branches faz parte do registro do processo de
+desenvolvimento — quem fez o quê, em qual ramo, com qual Pull Request. Deletar
+branches depois do merge apaga esse rastro.
+**Decisão:** nenhuma branch é deletada, em hipótese alguma, depois do merge e do
+Pull Request aceito. Todas as branches (`feat/*`, `fix/*`, `docs/*`, `test/*`,
+`refactor/*`, `build/*`, `ci/*`, `chore/*`, `release/*`) são mantidas para sempre
+no repositório remoto. A opção "Automatically delete head branches" do GitHub fica
+**desligada**.
+**Consequência:** substitui o passo "3.10 Limpeza" de `docs/versionamento.md`, que
+mandava rodar `git branch -d` e `git push origin --delete` após o merge — esse
+passo não vale mais. Depois do merge, o fluxo é apenas sincronizar o `develop`
+local (`git checkout develop && git pull origin develop`); a branch mergeada
+permanece no remoto.
