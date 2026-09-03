@@ -1,0 +1,4 @@
+interface:
+  display_name: "Revisao de Arquitetura"
+  short_description: "Checklist por camada antes de abrir o Pull Request"
+  default_prompt: "Use $revisao-arquitetura para revisar a mudanca atual camada por camada e rodar ./mvnw clean verify."

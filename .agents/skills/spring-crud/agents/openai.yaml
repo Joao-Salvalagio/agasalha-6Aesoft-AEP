@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spring CRUD"
+  short_description: "Implementa recursos REST consistentes com a arquitetura do Agasalha"
+  default_prompt: "Use $spring-crud para implementar o recurso da issue, na ordem Model -> Repository -> DTOs -> Mapper -> Service -> Controller -> Exception -> Tests."

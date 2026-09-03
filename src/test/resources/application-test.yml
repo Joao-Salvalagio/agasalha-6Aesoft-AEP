@@ -1,0 +1,9 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: agasalha_test
+
+logging:
+  level:
+    org.mongodb.driver: ERROR
