@@ -157,7 +157,7 @@ export function DetalhesItemPage() {
 
               {item.status === 'DISPONIVEL' && (
                 <Button
-                  className="w-full bg-laranja text-laranja-foreground hover:bg-laranja/85"
+                  className="w-full"
                   disabled={acaoEstado.loading}
                   onClick={handleReservar}
                 >

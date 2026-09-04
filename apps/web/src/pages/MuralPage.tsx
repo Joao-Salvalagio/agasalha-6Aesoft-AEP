@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiltrosMural } from '@/features/itens/components/FiltrosMural';
 import { ItemCard } from '@/features/itens/components/ItemCard';
 import { useItens } from '@/features/itens/hooks/useItens';
+import { Button } from '@/components/ui/button';
 import { useItemActions } from '@/features/itens/hooks/useItemActions';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -61,12 +62,13 @@ export function MuralPage() {
         </>
       )}
 
-      <button
+      <Button
+        size="lg"
         onClick={() => navigate('/itens/novo')}
-        className="fixed bottom-6 right-6 flex items-center gap-2 rounded-full bg-laranja px-5 py-3 text-sm font-semibold text-laranja-foreground shadow-lg transition hover:bg-laranja/85 sm:hidden"
+        className="fixed bottom-6 right-6 h-14 rounded-full px-6 shadow-lg sm:hidden"
       >
         + Doar
-      </button>
+      </Button>
     </div>
   );
 }

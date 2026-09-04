@@ -37,7 +37,7 @@ export function ItemCard({ item, onReservar, reservando }: ItemCardProps) {
       className="group flex cursor-pointer flex-col transition-shadow hover:shadow-md"
       onClick={() => navigate(`/itens/${item.id}`)}
     >
-      <CardContent className="flex flex-1 flex-col items-center gap-3 pt-6">
+      <CardContent className="flex flex-1 flex-col items-center gap-3 pt-1">
         <div className="flex items-start justify-between w-full">
           <StatusBadge status={item.status} />
           <span className="text-xs font-semibold text-muted-foreground bg-muted rounded-full px-2 py-0.5">
@@ -59,7 +59,7 @@ export function ItemCard({ item, onReservar, reservando }: ItemCardProps) {
       <CardFooter className="border-t border-border pt-3 pb-4">
         {item.status === 'DISPONIVEL' ? (
           <Button
-            className="w-full bg-laranja text-laranja-foreground hover:bg-laranja/85"
+            className="w-full"
             size="sm"
             disabled={reservando}
             onClick={(e) => {

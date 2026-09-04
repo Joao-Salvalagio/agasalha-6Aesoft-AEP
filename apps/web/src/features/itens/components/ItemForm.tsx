@@ -57,7 +57,7 @@ export function ItemForm({
             render={({ field }) => (
               <Select
                 value={field.value ?? ''}
-                onValueChange={(v: string) => field.onChange(v)}
+                onValueChange={(v: string | null) => field.onChange(v ?? '')}
               >
                 <SelectTrigger id="tipoPeca" className="w-full" aria-invalid={!!errors.tipoPeca}>
                   <SelectValue placeholder="Selecione…" />
@@ -85,7 +85,7 @@ export function ItemForm({
             render={({ field }) => (
               <Select
                 value={field.value ?? ''}
-                onValueChange={(v: string) => field.onChange(v)}
+                onValueChange={(v: string | null) => field.onChange(v ?? '')}
               >
                 <SelectTrigger id="tamanho" className="w-full" aria-invalid={!!errors.tamanho}>
                   <SelectValue placeholder="Selecione…" />
@@ -113,7 +113,7 @@ export function ItemForm({
             render={({ field }) => (
               <Select
                 value={field.value ?? ''}
-                onValueChange={(v: string) => field.onChange(v)}
+                onValueChange={(v: string | null) => field.onChange(v ?? '')}
               >
                 <SelectTrigger id="genero" className="w-full" aria-invalid={!!errors.genero}>
                   <SelectValue placeholder="Selecione…" />
@@ -141,7 +141,7 @@ export function ItemForm({
             render={({ field }) => (
               <Select
                 value={field.value ?? ''}
-                onValueChange={(v: string) => field.onChange(v)}
+                onValueChange={(v: string | null) => field.onChange(v ?? '')}
               >
                 <SelectTrigger id="estadoConservacao" className="w-full" aria-invalid={!!errors.estadoConservacao}>
                   <SelectValue placeholder="Selecione…" />
@@ -200,7 +200,7 @@ export function ItemForm({
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-laranja text-laranja-foreground hover:bg-laranja/85"
+          className="w-full"
         >
           {loading ? 'Salvando…' : rotuloBotao}
         </Button>

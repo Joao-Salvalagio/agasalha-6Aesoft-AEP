@@ -58,7 +58,7 @@ export function FiltrosMural({ onFiltrar }: FiltrosMuralProps) {
     <div className="flex flex-wrap items-center gap-2">
       <Select
         value={tipoPeca}
-        onValueChange={(v: string) => handleChange('tipoPeca', v, setTipoPeca)}
+        onValueChange={(v: string | null) => handleChange('tipoPeca', v ?? VAZIO, setTipoPeca)}
       >
         <SelectTrigger className="w-40">
           <SelectValue placeholder="Tipo de peça" />
@@ -75,7 +75,7 @@ export function FiltrosMural({ onFiltrar }: FiltrosMuralProps) {
 
       <Select
         value={tamanho}
-        onValueChange={(v: string) => handleChange('tamanho', v, setTamanho)}
+        onValueChange={(v: string | null) => handleChange('tamanho', v ?? VAZIO, setTamanho)}
       >
         <SelectTrigger className="w-32">
           <SelectValue placeholder="Tamanho" />
@@ -92,7 +92,7 @@ export function FiltrosMural({ onFiltrar }: FiltrosMuralProps) {
 
       <Select
         value={genero}
-        onValueChange={(v: string) => handleChange('genero', v, setGenero)}
+        onValueChange={(v: string | null) => handleChange('genero', v ?? VAZIO, setGenero)}
       >
         <SelectTrigger className="w-36">
           <SelectValue placeholder="Gênero" />
@@ -109,7 +109,7 @@ export function FiltrosMural({ onFiltrar }: FiltrosMuralProps) {
 
       <Select
         value={status}
-        onValueChange={(v: string) => handleChange('status', v, setStatus)}
+        onValueChange={(v: string | null) => handleChange('status', v ?? VAZIO, setStatus)}
       >
         <SelectTrigger className="w-36">
           <SelectValue placeholder="Status" />
