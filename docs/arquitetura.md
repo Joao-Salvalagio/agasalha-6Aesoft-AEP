@@ -99,3 +99,46 @@ agasalha/
 - **Entrega 2:** múltiplas coleções (`itens`, `abrigos`, `doadores`, `doacoes`),
   relacionamento entre elas, e `abrigos` com lista aninhada de subdocumentos
   `demandas`. Detalhe em `docs/regras-negocio.md`.
+
+## Camada web — `apps/web` (ADR-014)
+
+Esta seção substitui, para a Entrega 1 em diante, a descrição de páginas
+estáticas do início deste documento. O mural não é mais `index.html` servido pelo
+Spring: é uma aplicação React em `apps/web`, com build próprio.
+
+```
+Navegador
+  |
+React (apps/web, Vite :5173)
+  |
+proxy /api --> http://localhost:8080
+  |
+Controller
+```
+
+A aplicação é servida pelo Vite em desenvolvimento. O `vite.config.ts` encaminha
+tudo sob `/api` para a API na porta 8080, então o navegador enxerga uma origem
+só. Em produção o `npm run build` gera `dist/` estático, que pode ser servido por
+qualquer servidor HTTP; nesse cenário o CORS da API entra em ação pela
+propriedade `cors.origens-permitidas`.
+
+Organização interna, por funcionalidade e não por tipo de arquivo:
+
+| Diretório | Responsabilidade |
+|---|---|
+| `src/pages/` | uma página por rota (mural, cadastro, detalhes, edição) |
+| `src/routes/` | definição das rotas do `react-router-dom` |
+| `src/layouts/` | casca visual compartilhada entre as páginas |
+| `src/features/itens/services/` | única fronteira de acesso HTTP à API |
+| `src/features/itens/hooks/` | estado e chamadas por caso de uso |
+| `src/features/itens/components/` | componentes do domínio de itens |
+| `src/features/itens/schemas/` | validação de formulário com `zod` |
+| `src/components/ui/` | componentes de interface genéricos |
+
+**Regra de fronteira:** nenhum componente chama `fetch` direto. Todo acesso à API
+passa por `features/itens/services/item.service.ts`, que traduz erro da API no
+formato `ApiError` de `docs/http-api.md`. É o espelho, no cliente, da regra de que
+nenhuma `@Document` cruza a fronteira HTTP.
+
+`src/main/resources/static/index.html` permanece no repositório como landing da
+API, apontando para `/docs`. Não é mais o mural.
