@@ -3,7 +3,7 @@ spring:
     name: agasalha
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017}
+      uri:  ${MONGODB_URI:mongodb://localhost:27017}
       database: ${MONGODB_DATABASE:agasalha}
 
 server:
@@ -21,3 +21,6 @@ management:
 springdoc:
   swagger-ui:
     path: /docs
+
+cors:
+  origens-permitidas: ${CORS_ORIGENS:http://localhost:3000,http://localhost:5173}
