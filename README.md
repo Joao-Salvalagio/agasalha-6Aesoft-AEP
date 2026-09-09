@@ -89,3 +89,44 @@ que **70%**.
 ## Versão
 
 Entrega 1 = tag `v1.0` · Entrega 2 = tag `v2.0`.
+
+## Frontend (ADR-014)
+
+O mural é uma aplicação **React 19 + Vite** em `apps/web`, separada da API.
+
+> Esta seção corrige a seção **Como subir** acima: o endereço
+> `http://localhost:8080/` serve a landing da API e a documentação em `/docs`.
+> **O mural fica em `http://localhost:5173`.**
+
+Com a API já rodando, em outro terminal:
+
+```bash
+cd apps/web
+npm ci
+npm run dev
+```
+
+Requer Node.js 20 ou superior. O Vite encaminha `/api` para a porta 8080, então
+não há configuração extra no navegador. Passo a passo e troubleshooting em
+[`docs/setup.md`](docs/setup.md); a arquitetura da camada web está em
+[`docs/arquitetura.md`](docs/arquitetura.md).
+
+Telas: mural com filtros (tamanho, tipo, gênero, status), cadastro, detalhes,
+edição e as transições `DISPONIVEL → RESERVADO → ENTREGUE`.
+
+## Escopo da medição de cobertura
+
+O gate de 70% do JaCoCo mede o **código Java da API**, onde estão as regras de
+negócio, a validação de domínio e a máquina de estados. É o comando reproduzível
+exigido pelo edital:
+
+```bash
+./mvnw verify
+```
+
+O frontend é cliente da API e não entra nessa medição. Sua verificação de
+integridade é o build:
+
+```bash
+cd apps/web && npm run build
+```
