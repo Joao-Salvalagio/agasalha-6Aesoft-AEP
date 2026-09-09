@@ -139,3 +139,25 @@ mandava rodar `git branch -d` e `git push origin --delete` após o merge — ess
 passo não vale mais. Depois do merge, o fluxo é apenas sincronizar o `develop`
 local (`git checkout develop && git pull origin develop`); a branch mergeada
 permanece no remoto.
+
+## ADR-014 — Frontend em React/Vite, fora do Spring
+
+**Contexto:** o ADR-009 estabeleceu frontend em HTML/CSS/JavaScript puro, servido
+como static resource do Spring, sem build step e sem framework. A Task B2 da
+Entrega 1 foi entregue de outra forma (PR #9): uma aplicação React 19 + Vite em
+`apps/web`, com TypeScript, Tailwind e componentes shadcn. A aplicação está
+funcional — `tsc -b && vite build` compila sem erro, e ela cobre mural com
+filtros, cadastro, edição, detalhes e transição de status, consumindo a API por
+proxy. O desvio ocorreu na execução, sem decisão registrada.
+**Decisão:** o desvio é ratificado pelos três integrantes. O mural da Entrega 1 é
+a aplicação React em `apps/web`, servida pelo Vite na porta 5173 em
+desenvolvimento, consumindo `/api` por proxy para `http://localhost:8080`. A
+origem já está liberada em `cors.origens-permitidas`. Este ADR **substitui o
+ADR-009**, que deixa de valer.
+**Consequência:** `src/main/resources/static/index.html` deixa de ser o mural e
+passa a ser a landing da API, apontando para `/docs` e para o endereço do mural.
+O repositório passa a ter dois runtimes: Maven para a API e npm para o frontend —
+`docs/setup.md` ganha a seção correspondente. A medição de cobertura do JaCoCo
+continua restrita ao código Java; a evidência de 70% do edital é sobre a API, que
+concentra as regras de negócio. A Entrega 2 evolui a interface dentro de
+`apps/web`, sem retornar a páginas estáticas.
