@@ -130,3 +130,16 @@ integridade é o build:
 ```bash
 cd apps/web && npm run build
 ```
+
+## Entrega 2 — leia antes de começar
+
+A Entrega 2 é executada por Bruno Koji Fujisaki e Eric Delefrati Rocha Leite. O
+João Miguel migrou o curso para EAD depois da tag `v1.0` e não participa desta
+entrega; a fatia dele foi redividida entre os dois (**ADR-015**).
+
+| Documento | Para quê |
+|---|---|
+| [`docs/handoff-entrega-2.md`](docs/handoff-entrega-2.md) | **Comece por aqui.** Estado do projeto, critérios do edital com dono, ordem de ataque, armadilhas |
+| [`docs/divisao-tarefas.md`](docs/divisao-tarefas.md) | Seção "Entrega 2 — redivisão após ADR-015": quem faz o quê |
+| [`docs/roteiro-video-entrega-2.md`](docs/roteiro-video-entrega-2.md) | Roteiro cronometrado do vídeo (3 a 5 min, dois narradores) |
+| `AEP_Entrega2_Agasalha.pdf` | Ficha de identificação do edital, faltando só o link do vídeo |
