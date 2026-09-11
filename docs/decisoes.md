@@ -161,3 +161,41 @@ O repositório passa a ter dois runtimes: Maven para a API e npm para o frontend
 continua restrita ao código Java; a evidência de 70% do edital é sobre a API, que
 concentra as regras de negócio. A Entrega 2 evolui a interface dentro de
 `apps/web`, sem retornar a páginas estáticas.
+
+## ADR-015 — Saída do João Miguel e redivisão da Entrega 2
+
+**Contexto:** o João Miguel Silva Salvalagio (RA 26014105-2) migra o curso de
+presencial para EAD depois do fechamento da Entrega 1 (`v1.0`) e não participa da
+Entrega 2. A fatia dele na Entrega 2 — agregado `Abrigo` com `demandas`
+aninhadas, seed, e a condução do fechamento — fica sem dono. A regra 6 do
+`AGENTS.md` diz que mexer em escopo é decisão dos três, e a `docs/divisao-tarefas.md`
+é append-only por força do ADR-012, então a divisão original permanece registrada.
+**Decisão:** a Entrega 2 passa a ser executada por dois integrantes, Bruno Koji
+Fujisaki e Eric Delefrati Rocha Leite. A fatia do João é dividida pela costura que
+já existia, não meio a meio:
+
+- **Bruno** absorve o domínio puro do abrigo — `model/Abrigo`, `model/Demanda`,
+  invariantes (RN-08), `deficit()` (RN-09) e o seed de abrigos e demandas. A RN-14
+  do motor de matching, que já era dele, consome `deficit()` diretamente; juntando,
+  o matching deixa de depender de código de terceiro.
+- **Eric** absorve a persistência e o wiring — `AbrigoRepository`, `AbrigoService`,
+  `AbrigoMapper` (RN-07) — e conduz o fechamento: `release/entrega-2` e tag `v2.0`.
+  Ele já era dono dos endpoints `/api/abrigos` e `/api/abrigos/{id}/demandas`, que
+  na divisão original chamavam um service de outra pessoa.
+
+A condução do fechamento não vai para o Bruno porque ele já mantém o quadro de
+tarefas, que é critério próprio de metodologia na Entrega 2.
+
+A mudança de escopo foi acordada previamente entre os três integrantes; este ADR
+registra uma decisão já tomada, e não uma proposta. A exceção à regra 6 do
+`AGENTS.md` está satisfeita.
+**Consequência:** a seção "Entrega 2" de `docs/divisao-tarefas.md` deixa de valer e
+é substituída pela seção "Entrega 2 — redivisão após ADR-015", adicionada ao fim do
+mesmo documento; as fatias originais ficam no arquivo como registro histórico. O
+mapa "Integrantes" e a seção "Para a IA — onboarding por prompt" continuam citando
+o João: quem se apresentar como João na Entrega 2 é redirecionado conforme a nova
+seção. A ficha de identificação da Entrega 2 (seção 11 do edital) é preenchida
+pelos dois integrantes remanescentes; manter ou não o RA do João na ficha é
+decisão deles com a coordenação, fora do escopo deste repositório. O histórico de
+commits, Pull Requests e branches da Entrega 1 permanece intocado — o ADR-013
+continua valendo e nada é apagado.
