@@ -6,6 +6,7 @@ import br.com.cesumar.agasalha.exception.MatchNaoEncontradoException;
 import br.com.cesumar.agasalha.mapper.MatchMapper;
 import br.com.cesumar.agasalha.model.Abrigo;
 import br.com.cesumar.agasalha.model.Demanda;
+import br.com.cesumar.agasalha.model.Endereco;
 import br.com.cesumar.agasalha.model.EstadoConservacao;
 import br.com.cesumar.agasalha.model.Genero;
 import br.com.cesumar.agasalha.model.ItemAgasalho;
@@ -45,7 +46,10 @@ class MatchServiceTest {
     }
 
     private Abrigo abrigo(String id, Demanda... demandas) {
-        return new Abrigo(id, "Abrigo " + id, 10, 0, List.of(demandas));
+        Abrigo abrigo = new Abrigo("Abrigo " + id, new Endereco("Rua A", "1", "Centro", "Maringa", "PR"), 10, 0);
+        abrigo.setId(id);
+        abrigo.getDemandas().addAll(List.of(demandas));
+        return abrigo;
     }
 
     @Test

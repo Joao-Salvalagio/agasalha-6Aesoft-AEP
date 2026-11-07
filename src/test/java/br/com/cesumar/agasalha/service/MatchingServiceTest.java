@@ -2,6 +2,7 @@ package br.com.cesumar.agasalha.service;
 
 import br.com.cesumar.agasalha.model.Abrigo;
 import br.com.cesumar.agasalha.model.Demanda;
+import br.com.cesumar.agasalha.model.Endereco;
 import br.com.cesumar.agasalha.model.EstadoConservacao;
 import br.com.cesumar.agasalha.model.Genero;
 import br.com.cesumar.agasalha.model.ItemAgasalho;
@@ -32,7 +33,11 @@ class MatchingServiceTest {
     }
 
     private static Abrigo abrigo(String id, int capacidade, int estoque, Demanda... demandas) {
-        return new Abrigo(id, "Abrigo " + id, capacidade, estoque, List.of(demandas));
+        Abrigo abrigo = new Abrigo("Abrigo " + id, new Endereco("Rua A", "1", "Centro", "Maringa", "PR"),
+                capacidade, estoque);
+        abrigo.setId(id);
+        abrigo.getDemandas().addAll(List.of(demandas));
+        return abrigo;
     }
 
     @ParameterizedTest
