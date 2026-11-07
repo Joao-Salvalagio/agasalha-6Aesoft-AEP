@@ -39,6 +39,11 @@ public class GlobalExceptionHandler {
         return construir(HttpStatus.NOT_FOUND, ex.getMessage(), List.of());
     }
 
+    @ExceptionHandler(DemandaNaoEncontradaException.class)
+    public ResponseEntity<ApiError> tratarDemandaNaoEncontrada(DemandaNaoEncontradaException ex) {
+        return construir(HttpStatus.NOT_FOUND, ex.getMessage(), List.of());
+    }
+
     @ExceptionHandler(MatchNaoEncontradoException.class)
     public ResponseEntity<ApiError> tratarMatchNaoEncontrado(MatchNaoEncontradoException ex) {
         return construir(HttpStatus.NOT_FOUND, ex.getMessage(), List.of());
