@@ -97,3 +97,39 @@ em branco. Violação → `400`.
 `POST /api/itens/{id}/reserva` aplica `DISPONIVEL → RESERVADO`.
 `POST /api/itens/{id}/entrega` aplica `RESERVADO → ENTREGUE`.
 Fora dessas transições: `409` (RN-04).
+
+---
+
+## Entrega 2 — matching
+
+| Método | Caminho | Entrada | Sucesso | Erros |
+|---|---|---|---|---|
+| `POST` | `/api/matches` | `MatchRequest` | `200` + `MatchResponse` | `400`, `404` |
+
+### `MatchRequest`
+
+```json
+{
+  "itemId": "66b0c1e2f4a1b23c45d6e7f8"
+}
+```
+
+`itemId` obrigatório e não em branco. Violação → `400`.
+
+### `MatchResponse`
+
+```json
+{
+  "itemId": "66b0c1e2f4a1b23c45d6e7f8",
+  "abrigoId": "66b0c1e2f4a1b23c45d6e7a1",
+  "abrigoNome": "Abrigo Central",
+  "tipoPeca": "CASACO",
+  "tamanho": "M",
+  "genero": "UNISSEX",
+  "deficit": 7
+}
+```
+
+O endpoint só **sugere**: não altera item, abrigo nem demanda. Aplica RN-10 a
+RN-14 e devolve o abrigo e a demanda de maior déficit. `404` quando o item não
+existe ou quando nenhum abrigo é compatível.
