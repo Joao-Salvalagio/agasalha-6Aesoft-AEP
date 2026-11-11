@@ -130,3 +130,21 @@ integridade é o build:
 ```bash
 cd apps/web && npm run build
 ```
+
+### Entrega 2 — coleções e endpoints novos
+
+| Coleção | O que guarda |
+|---|---|
+| `itens` | agasalhos; `doacaoId` e `abrigoId` opcionais |
+| `doadores` | quem doa |
+| `doacoes` | liga um `doadorId` a um `abrigoId` |
+| `abrigos` | `endereco` aninhado e lista de subdocumentos `demandas[]` |
+
+Endpoints: `/api/abrigos`, `/api/abrigos/{id}/demandas`, `/api/doadores`,
+`/api/doacoes` e `/api/doacoes/{id}/itens`, além do `POST /api/matches`. Contrato em
+[`docs/http-api.md`](docs/http-api.md), modelo das coleções e diagrama em
+[`docs/arquitetura.md`](docs/arquitetura.md), decisões em
+[`docs/decisoes.md`](docs/decisoes.md) (ADR-016).
+
+Cobertura: rode `./mvnw clean verify` com o Docker em execução (os testes de
+integração usam Testcontainers) e abra `target/site/jacoco/index.html`.

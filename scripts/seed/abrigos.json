@@ -1,0 +1,87 @@
+
+[
+  {
+    "nome": "Abrigo Esperanca",
+    "endereco": {
+      "logradouro": "Rua das Flores",
+      "numero": "120",
+      "bairro": "Centro",
+      "cidade": "Maringa",
+      "estado": "PR"
+    },
+    "capacidadeEstoque": 100,
+    "estoqueAtual": 20,
+    "demandas": [
+      {
+        "tipoPeca": "CASACO",
+        "tamanho": "M",
+        "genero": "UNISSEX",
+        "quantidadeNecessaria": 30,
+        "quantidadeAtendida": 10
+      },
+      {
+        "tipoPeca": "COBERTOR",
+        "tamanho": "G",
+        "genero": "UNISSEX",
+        "quantidadeNecessaria": 20,
+        "quantidadeAtendida": 5
+      }
+    ]
+  },
+  {
+    "nome": "Casa de Acolhida Sao Jose",
+    "endereco": {
+      "logradouro": "Avenida Brasil",
+      "numero": "850",
+      "bairro": "Zona 7",
+      "cidade": "Maringa",
+      "estado": "PR"
+    },
+    "capacidadeEstoque": 60,
+    "estoqueAtual": 58,
+    "demandas": [
+      {
+        "tipoPeca": "BLUSA",
+        "tamanho": "P",
+        "genero": "FEMININO",
+        "quantidadeNecessaria": 15,
+        "quantidadeAtendida": 3
+      },
+      {
+        "tipoPeca": "CALCA",
+        "tamanho": "M",
+        "genero": "MASCULINO",
+        "quantidadeNecessaria": 12,
+        "quantidadeAtendida": 12
+      }
+    ]
+  },
+  {
+    "nome": "Abrigo Novo Amanhecer",
+    "endereco": {
+      "logradouro": "Rua Pioneiro Joao Alves",
+      "numero": "45",
+      "bairro": "Vila Operaria",
+      "cidade": "Sarandi",
+      "estado": "PR"
+    },
+    "capacidadeEstoque": 80,
+    "estoqueAtual": 5,
+    "demandas": [
+      {
+        "tipoPeca": "CASACO",
+        "tamanho": "G",
+        "genero": "MASCULINO",
+        "quantidadeNecessaria": 25,
+        "quantidadeAtendida": 0
+      },
+      {
+        "tipoPeca": "MEIA",
+        "tamanho": "M",
+        "genero": "UNISSEX",
+        "quantidadeNecessaria": 40,
+        "quantidadeAtendida": 15
+      }
+    ]
+  }
+]

@@ -7,3 +7,9 @@ done
 
 mongoimport --host "${MONGO_HOST:-mongo}" --db "${MONGO_DATABASE:-agasalha}" \
   --collection itens --jsonArray --drop --file /seed/itens.json
+
+mongoimport --host "${MONGO_HOST:-mongo}" --db "${MONGO_DATABASE:-agasalha}" \
+  --collection abrigos --jsonArray --drop --file /seed/abrigos.json
+
+mongoimport --host "${MONGO_HOST:-mongo}" --db "${MONGO_DATABASE:-agasalha}" \
+  --collection doadores --jsonArray --drop --file /seed/doadores.json

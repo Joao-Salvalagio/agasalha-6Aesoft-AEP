@@ -67,7 +67,8 @@ class ItemControllerTest {
 
     private ItemResponse response(String id, StatusItem status) {
         return new ItemResponse(id, TipoPeca.CASACO, Tamanho.M, Genero.UNISSEX,
-                EstadoConservacao.USADO_BOM, "Ana", "ana@exemplo.com", status, Instant.parse("2026-06-01T10:00:00Z"));
+                EstadoConservacao.USADO_BOM, "Ana", "ana@exemplo.com", status, Instant.parse("2026-06-01T10:00:00Z"),
+                null, null);
     }
 
     @Test

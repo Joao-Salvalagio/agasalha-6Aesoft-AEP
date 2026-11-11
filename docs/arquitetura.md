@@ -142,3 +142,67 @@ nenhuma `@Document` cruza a fronteira HTTP.
 
 `src/main/resources/static/index.html` permanece no repositório como landing da
 API, apontando para `/docs`. Não é mais o mural.
+
+## Entrega 2 — modelo das coleções e arquitetura final
+
+A Entrega 2 mantém as camadas da Entrega 1 e acrescenta três coleções ao lado de
+`itens`: `abrigos` (com objetos aninhados), `doadores` e `doacoes` (com
+referências).
+
+### Coleções e relacionamentos
+
+```
+doadores               doacoes                    abrigos
+--------               -------                    -------
+_id  <---------------- doadorId                   _id  <---------------+
+nome                   abrigoId ----------------->                     |
+contato                dataDoacao                 nome                 |
+                           ^                      endereco {logradouro, numero, bairro,
+                           |                                cidade, estado}   (aninhado)
+                       itens                      capacidadeEstoque
+                       -----                      estoqueAtual
+                       _id                        demandas [ {tipoPeca, tamanho,   (lista de
+                       doacaoId ------+                      genero,              subdocumentos)
+                       abrigoId ------+--------+             quantidadeNecessaria,
+                       tipoPeca, tamanho,                    quantidadeAtendida} ]
+                       genero, estadoConservacao
+                       nomeDoador, contatoDoador (só itens sem doação)
+                       status, dataCadastro
+```
+
+| Coleção | Conteúdo | Referências |
+|---|---|---|
+| `itens` | documento plano; `doacaoId` e `abrigoId` opcionais | `doacoes`, `abrigos` |
+| `doadores` | `nome`, `contato` | — |
+| `doacoes` | `doadorId`, `abrigoId`, `dataDoacao` | `doadores`, `abrigos` |
+| `abrigos` | `endereco` aninhado e `demandas[]` | — |
+
+Só identificadores cruzam coleções: nenhum dado de doador ou abrigo é copiado para
+`doacao` (RN-15). O item de uma doação também não guarda dados do doador (ADR-016).
+
+### Componentes da Entrega 2
+
+```
+AbrigoController, DoadorController, DoacaoController, MatchController
+   |
+Request DTO --> Service --> Repository --> MongoDB
+                  |
+                  +--> MatchingService (lógica pura, sem banco)
+
+MongoDB --> Model --> Service --> Mapper --> Response DTO --> Controller --> JSON
+```
+
+| Serviço | Responsabilidade |
+|---|---|
+| `AbrigoService` | CRUD do abrigo e das demandas aninhadas, endereçadas por posição; recusa remover abrigo referenciado |
+| `DoadorService` | CRUD do doador; recusa remover doador com doações |
+| `DoacaoService` | cria a doação validando doador e abrigo; cria itens vinculados à doação |
+| `MatchService` / `MatchingService` | sugere o abrigo e a demanda de maior déficit (RN-10 a RN-14) |
+
+### Testes e cobertura
+
+Unitários cobrem modelo, mapper e service; `@WebMvcTest` cobre o contrato HTTP de
+cada controller; `AbrigoApiIT` e `RelacionamentosIT` (Testcontainers-MongoDB)
+cobrem os documentos aninhados no banco e a navegação `item → doação → doador`.
+Evidência de cobertura: `./mvnw clean verify` gera `target/site/jacoco/index.html`
+e falha abaixo de 70% de linha.
