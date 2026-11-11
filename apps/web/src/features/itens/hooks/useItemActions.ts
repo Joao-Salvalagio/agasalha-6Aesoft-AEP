@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import type { ItemResponse, ItemUpdateRequest } from '../interfaces/item.interface';
-import { ehApiException, itemService } from '../services/item.service';
+import { ehApiException } from '@/lib/http';
+import { itemService } from '../services/item.service';
 
 interface AcaoState {
   loading: boolean;

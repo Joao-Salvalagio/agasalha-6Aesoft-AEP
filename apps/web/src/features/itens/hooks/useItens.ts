@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import { useRequisicao } from '@/lib/useRequisicao';
 import type { ItemFiltroParams, ItemSummaryResponse } from '../interfaces/item.interface';
-import { ehApiException, itemService } from '../services/item.service';
+import { itemService } from '../services/item.service';
 
 interface UseItensState {
   itens: ItemSummaryResponse[];
@@ -10,36 +11,18 @@ interface UseItensState {
 }
 
 export function useItens(filtros?: ItemFiltroParams): UseItensState {
-  const [itens, setItens] = useState<ItemSummaryResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState<string | null>(null);
-  const [versao, setVersao] = useState(0);
+  const tipoPeca = filtros?.tipoPeca;
+  const tamanho = filtros?.tamanho;
+  const genero = filtros?.genero;
+  const status = filtros?.status;
 
-  const recarregar = useCallback(() => setVersao((v) => v + 1), []);
+  const buscar = useCallback(
+    () => itemService.listar({ tipoPeca, tamanho, genero, status }),
+    [tipoPeca, tamanho, genero, status],
+  );
 
-  useEffect(() => {
-    let cancelado = false;
-    setLoading(true);
-    setErro(null);
+  const chave = [tipoPeca, tamanho, genero, status].join('|');
+  const { dados, loading, erro, recarregar } = useRequisicao(buscar, chave, 'Erro ao carregar itens');
 
-    itemService
-      .listar(filtros)
-      .then((dados) => {
-        if (!cancelado) setItens(dados);
-      })
-      .catch((err) => {
-        if (!cancelado) {
-          setErro(ehApiException(err) ? err.errorData.erro : 'Erro ao carregar itens');
-        }
-      })
-      .finally(() => {
-        if (!cancelado) setLoading(false);
-      });
-
-    return () => {
-      cancelado = true;
-    };
-  }, [filtros?.tipoPeca, filtros?.tamanho, filtros?.genero, filtros?.status, versao]);
-
-  return { itens, loading, erro, recarregar };
+  return { itens: dados ?? [], loading, erro, recarregar };
 }

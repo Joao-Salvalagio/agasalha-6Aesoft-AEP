@@ -1,201 +1,251 @@
-import { useNavigate, useParams } from 'react-router-dom';
-import {
-  Shirt,
-  BedDouble,
-  Layers,
-  Wind,
-  Footprints,
-  HelpCircle,
-  Calendar,
-  User,
-  Phone,
-} from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowRight, ChevronLeft, House, Info, Mail, Pencil, PackageCheck, Phone, Trash2, Truck } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { ErrorState } from '@/components/ErrorState';
+import { PageHeader } from '@/components/PageHeader';
 import { StatusBadge } from '@/components/StatusBadge';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { PecaIcone } from '@/features/itens/components/PecaIcone';
+import {
+  ESTADO_CONSERVACAO_LABEL,
+  GENERO_LABEL,
+  TIPO_PECA_LABEL,
+} from '@/features/itens/constants/item.constants';
 import { useItem } from '@/features/itens/hooks/useItem';
 import { useItemActions } from '@/features/itens/hooks/useItemActions';
-import {
-  TIPO_PECA_LABEL,
-  GENERO_LABEL,
-  ESTADO_CONSERVACAO_LABEL,
-} from '@/features/itens/constants/item.constants';
-import type { TipoPeca } from '@/features/itens/interfaces/item.interface';
+import { useOrigemItem } from '@/features/itens/hooks/useOrigemItem';
+import { MatchSugestao } from '@/features/matches/components/MatchSugestao';
+import { useMatchSugerido } from '@/features/matches/hooks/useMatchSugerido';
+import { cn } from '@/lib/utils';
 
-const ICONE_PECA: Record<TipoPeca, React.ElementType> = {
-  CASACO: Shirt,
-  BLUSA: Wind,
-  CALCA: Layers,
-  COBERTOR: BedDouble,
-  MEIA: Footprints,
-  OUTRO: HelpCircle,
-};
+const CLASSE_CARD_LATERAL = 'rounded-xl bg-card px-5 py-[18px] shadow-sm ring-1 ring-border';
+const CLASSE_TITULO_LATERAL = 'mb-3 text-[12.5px] font-bold tracking-[0.08em] text-muted-foreground uppercase';
+
+function iniciais(nome: string): string {
+  return nome
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0])
+    .join('')
+    .toUpperCase();
+}
+
+function LinkContato({ contato }: { contato: string }) {
+  const ehEmail = /^\S+@\S+\.\S+$/.test(contato);
+  const Icone = ehEmail ? Mail : Phone;
+  const href = ehEmail ? `mailto:${contato}` : `tel:${contato.replace(/\D/g, '')}`;
+  return (
+    <a href={href} className="mt-0.5 inline-flex items-center gap-1.5 text-sm text-primary underline underline-offset-3">
+      <Icone className="size-4" aria-hidden="true" />
+      {contato}
+    </a>
+  );
+}
 
 export function DetalhesItemPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { item, loading, erro } = useItem(id!);
+  const { item, loading, erro, recarregar } = useItem(id!);
+  const origem = useOrigemItem(item);
+  const match = useMatchSugerido(id!, item?.status === 'DISPONIVEL');
   const { reservar, entregar, excluir, estado: acaoEstado } = useItemActions();
+  const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
 
   async function handleReservar() {
-    const atualizado = await reservar(id!);
-    if (atualizado) navigate(0);
+    if (await reservar(id!)) recarregar();
   }
 
   async function handleEntregar() {
-    const atualizado = await entregar(id!);
-    if (atualizado) navigate(0);
+    if (await entregar(id!)) recarregar();
   }
 
   async function handleExcluir() {
-    const ok = await excluir(id!);
-    if (ok) navigate('/');
+    if (await excluir(id!)) navigate('/');
   }
+
+  const voltar = (
+    <Link to="/" className="mb-3.5 inline-flex items-center gap-1.5 rounded-lg py-1 pr-1.5 pl-0.5 text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground">
+      <ChevronLeft className="size-4" aria-hidden="true" />
+      Voltar ao mural
+    </Link>
+  );
 
   if (loading) {
     return (
-      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-        <Skeleton className="h-80 rounded-xl" />
-        <div className="flex flex-col gap-4">
-          <Skeleton className="h-28 rounded-xl" />
-          <Skeleton className="h-44 rounded-xl" />
+      <>
+        {voltar}
+        <div role="status" className="grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+          <span className="sr-only">Carregando peça…</span>
+          <Skeleton className="h-80 rounded-xl" />
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-28 rounded-xl" />
+            <Skeleton className="h-28 rounded-xl" />
+            <Skeleton className="h-36 rounded-xl" />
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (erro || !item) {
     return (
-      <div className="flex flex-col items-center gap-4 py-20 text-center">
-        <p className="text-muted-foreground">{erro ?? 'Item não encontrado'}</p>
-        <Button variant="outline" onClick={() => navigate('/')}>
-          Voltar ao Mural
-        </Button>
-      </div>
+      <>
+        {voltar}
+        <ErrorState titulo={erro ?? 'Essa peça não está mais no mural'} descricao="Ela pode ter sido entregue ou removida. Que tal ver as outras peças disponíveis?" onTentarNovamente={recarregar} />
+      </>
     );
   }
 
-  const Icone = ICONE_PECA[item.tipoPeca];
-  const dataFormatada = new Date(item.dataCadastro).toLocaleDateString('pt-BR');
+  const entregue = item.status === 'ENTREGUE';
+  const daDoacao = item.doacaoId !== null;
+  const edicaoBloqueada = entregue || daDoacao;
+  const descricao = `${TIPO_PECA_LABEL[item.tipoPeca]} ${item.tamanho} · ${GENERO_LABEL[item.genero]}`;
+  const doador = origem.dados?.doador ?? null;
+  const destino = origem.dados?.destino ?? null;
 
   return (
-    <div className="flex flex-col gap-4">
-      <nav className="flex items-center gap-1 text-sm text-muted-foreground">
-        <button onClick={() => navigate('/')} className="hover:text-foreground">
-          Mural
-        </button>
-        <span>›</span>
-        <span className="text-foreground">Detalhes</span>
-      </nav>
+    <>
+      {voltar}
+      <PageHeader eyebrow="Detalhe da peça" titulo={descricao} selo={<StatusBadge status={item.status} className="text-sm" />} />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-        <Card>
-          <CardContent className="flex flex-col items-center gap-6 pt-8 pb-8">
-            <div className="flex flex-col items-center gap-3">
-              <div className="rounded-2xl bg-secondary p-6">
-                <Icone className="size-12 text-primary" />
-              </div>
-              <StatusBadge status={item.status} className="text-sm px-3 py-1" />
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <section aria-labelledby="titulo-peca" className="rounded-xl bg-card p-6 shadow-sm ring-1 ring-border">
+          <div className="flex flex-col items-start gap-[22px] sm:flex-row sm:items-center">
+            <PecaIcone tipoPeca={item.tipoPeca} tamanho="lg" />
+            <div>
+              <h2 id="titulo-peca" className="text-xl font-extrabold tracking-tight">
+                {TIPO_PECA_LABEL[item.tipoPeca]} tamanho {item.tamanho}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {GENERO_LABEL[item.genero]} · {ESTADO_CONSERVACAO_LABEL[item.estadoConservacao]}
+              </p>
             </div>
+          </div>
 
-            <Separator />
+          <dl className="mt-6 grid gap-x-6 gap-y-4 border-t border-border pt-5 sm:grid-cols-2">
+            {[
+              ['Tipo de peça', TIPO_PECA_LABEL[item.tipoPeca]],
+              ['Tamanho', item.tamanho],
+              ['Gênero', GENERO_LABEL[item.genero]],
+              ['Estado de conservação', ESTADO_CONSERVACAO_LABEL[item.estadoConservacao]],
+              ['Cadastrada em', new Date(item.dataCadastro).toLocaleDateString('pt-BR')],
+              ['Origem', daDoacao ? 'Doação registrada' : 'Doação avulsa'],
+            ].map(([rotulo, valor]) => (
+              <div key={rotulo}>
+                <dt className="text-[12.5px] font-semibold text-muted-foreground">{rotulo}</dt>
+                <dd className="mt-0.5 text-[15px] font-bold">{valor}</dd>
+              </div>
+            ))}
+          </dl>
 
-            <dl className="w-full max-w-xs grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-              <dt className="text-muted-foreground">Tipo</dt>
-              <dd className="font-medium">{TIPO_PECA_LABEL[item.tipoPeca]}</dd>
-
-              <dt className="text-muted-foreground">Tamanho</dt>
-              <dd className="font-medium">{item.tamanho}</dd>
-
-              <dt className="text-muted-foreground">Gênero</dt>
-              <dd className="font-medium">{GENERO_LABEL[item.genero]}</dd>
-
-              <dt className="text-muted-foreground">Estado</dt>
-              <dd className="font-medium">{ESTADO_CONSERVACAO_LABEL[item.estadoConservacao]}</dd>
-
-              <dt className="text-muted-foreground flex items-center gap-1">
-                <Calendar className="size-3.5" /> Cadastro
-              </dt>
-              <dd className="font-medium">{dataFormatada}</dd>
-            </dl>
-          </CardContent>
-        </Card>
+          <div className="mt-[22px] flex flex-wrap items-center gap-2.5 border-t border-border pt-5">
+            {acaoEstado.erro && (
+              <p role="alert" className="w-full rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {acaoEstado.erro}
+              </p>
+            )}
+            {item.status === 'DISPONIVEL' && (
+              <Button className="h-[42px] rounded-xl px-[18px] text-[14.5px] font-semibold" disabled={acaoEstado.loading} onClick={handleReservar}>
+                <PackageCheck aria-hidden="true" />
+                {acaoEstado.loading ? 'Processando…' : 'Reservar'}
+              </Button>
+            )}
+            {item.status === 'RESERVADO' && (
+              <Button className="h-[42px] rounded-xl bg-moss px-[18px] text-[14.5px] font-semibold text-white hover:bg-moss/90" disabled={acaoEstado.loading} onClick={handleEntregar}>
+                <Truck aria-hidden="true" />
+                {acaoEstado.loading ? 'Processando…' : 'Confirmar entrega'}
+              </Button>
+            )}
+            {edicaoBloqueada ? (
+              <Button variant="outline" className="h-[42px] rounded-xl px-[18px] text-[14.5px] font-semibold" disabled aria-describedby="nota-edicao">
+                <Pencil aria-hidden="true" />
+                Editar
+              </Button>
+            ) : (
+              <Link to={`/itens/${item.id}/editar`} className={cn(buttonVariants({ variant: 'outline' }), 'h-[42px] rounded-xl px-[18px] text-[14.5px] font-semibold')}>
+                <Pencil aria-hidden="true" />
+                Editar
+              </Link>
+            )}
+            <span className="flex-1" />
+            <Button variant="ghost" className="h-[42px] rounded-xl px-[18px] text-[14.5px] font-semibold text-destructive hover:bg-destructive/10" onClick={() => setConfirmandoExclusao(true)}>
+              <Trash2 aria-hidden="true" />
+              Excluir
+            </Button>
+            {edicaoBloqueada && (
+              <p id="nota-edicao" className="flex w-full items-center gap-1.5 text-[13px] text-muted-foreground">
+                <Info className="size-4 shrink-0" aria-hidden="true" />
+                {entregue
+                  ? 'Peças já entregues não podem ser editadas.'
+                  : 'Peças vindas de uma doação são editadas pela própria doação.'}
+              </p>
+            )}
+          </div>
+        </section>
 
         <div className="flex flex-col gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Dados do Doador
-              </h2>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2 text-sm">
-              <div className="flex items-center gap-2">
-                <User className="size-4 text-muted-foreground shrink-0" />
-                <span>{item.nomeDoador}</span>
+          <section aria-labelledby="titulo-doador" className={CLASSE_CARD_LATERAL}>
+            <h2 id="titulo-doador" className={CLASSE_TITULO_LATERAL}>Doador</h2>
+            {origem.loading ? (
+              <Skeleton className="h-11 w-full" />
+            ) : doador ? (
+              <div className="flex items-center gap-3">
+                <span className="grid size-11 flex-none place-items-center rounded-full bg-accent font-extrabold" aria-hidden="true">
+                  {iniciais(doador.nome)}
+                </span>
+                <div className="min-w-0">
+                  <strong className="block text-[15.5px]">{doador.nome}</strong>
+                  {doador.contato && <LinkContato contato={doador.contato} />}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Phone className="size-4 text-muted-foreground shrink-0" />
-                <span>{item.contatoDoador}</span>
-              </div>
-            </CardContent>
-          </Card>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {origem.erro ?? 'Não foi possível identificar o doador desta peça.'}
+              </p>
+            )}
+          </section>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Ações
-              </h2>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2">
-              {acaoEstado.erro && (
-                <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                  {acaoEstado.erro}
-                </p>
-              )}
+          <section aria-labelledby="titulo-destino" className={CLASSE_CARD_LATERAL}>
+            <h2 id="titulo-destino" className={CLASSE_TITULO_LATERAL}>Destino</h2>
+            {origem.loading ? (
+              <Skeleton className="h-14 w-full" />
+            ) : destino ? (
+              <Link to={`/abrigos/${destino.id}`} className="flex items-center gap-3 rounded-xl bg-secondary p-3 hover:bg-accent">
+                <House className="size-[22px] flex-none" aria-hidden="true" />
+                <span className="min-w-0">
+                  <strong className="block">{destino.nome}</strong>
+                  <span className="text-[13px] text-muted-foreground">
+                    {destino.cidade}/{destino.estado} · escolhido pelo doador
+                  </span>
+                </span>
+                <ArrowRight className="ml-auto size-[18px] flex-none" aria-hidden="true" />
+              </Link>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Sem destino definido. A peça fica no mural geral até alguém reservar.
+              </p>
+            )}
+          </section>
 
-              {item.status === 'DISPONIVEL' && (
-                <Button
-                  className="w-full"
-                  disabled={acaoEstado.loading}
-                  onClick={handleReservar}
-                >
-                  {acaoEstado.loading ? 'Processando…' : 'Reservar Item'}
-                </Button>
-              )}
-
-              {item.status === 'RESERVADO' && (
-                <Button
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/85"
-                  disabled={acaoEstado.loading}
-                  onClick={handleEntregar}
-                >
-                  {acaoEstado.loading ? 'Processando…' : 'Confirmar Entrega'}
-                </Button>
-              )}
-
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => navigate(`/itens/${id}/editar`)}
-                disabled={item.status === 'ENTREGUE'}
-              >
-                Editar Dados
-              </Button>
-
-              <Button
-                variant="destructive"
-                className="w-full"
-                disabled={acaoEstado.loading}
-                onClick={handleExcluir}
-              >
-                Excluir Doação
-              </Button>
-            </CardContent>
-          </Card>
+          {item.status === 'DISPONIVEL' && (
+            <MatchSugestao match={match.dados} loading={match.loading} erro={match.erro} />
+          )}
         </div>
       </div>
-    </div>
+
+      <ConfirmDialog
+        aberto={confirmandoExclusao}
+        onAbertoChange={setConfirmandoExclusao}
+        titulo="Excluir esta peça?"
+        descricao={`${descricao} sai do mural e deixa de aparecer nas sugestões de match. Essa ação não pode ser desfeita.`}
+        rotuloConfirmar="Excluir peça"
+        onConfirmar={handleExcluir}
+        processando={acaoEstado.loading}
+        erro={acaoEstado.erro}
+      />
+    </>
   );
 }

@@ -1,13 +1,16 @@
 [
   {
+    "_id": { "$oid": "665f00000000000000000001" },
     "nome": "Ana Souza",
     "contato": "ana@exemplo.com"
   },
   {
+    "_id": { "$oid": "665f00000000000000000002" },
     "nome": "Carlos Lima",
     "contato": "(44) 90000-0000"
   },
   {
+    "_id": { "$oid": "665f00000000000000000003" },
     "nome": "Marina Alves",
     "contato": "marina@exemplo.com"
   }
