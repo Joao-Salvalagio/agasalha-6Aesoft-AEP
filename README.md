@@ -131,15 +131,20 @@ integridade é o build:
 cd apps/web && npm run build
 ```
 
-## Entrega 2 — leia antes de começar
+### Entrega 2 — coleções e endpoints novos
 
-A Entrega 2 é executada por Bruno Koji Fujisaki e Eric Delefrati Rocha Leite. O
-João Miguel migrou o curso para EAD depois da tag `v1.0` e não participa desta
-entrega; a fatia dele foi redividida entre os dois (**ADR-015**).
-
-| Documento | Para quê |
+| Coleção | O que guarda |
 |---|---|
-| [`docs/handoff-entrega-2.md`](docs/handoff-entrega-2.md) | **Comece por aqui.** Estado do projeto, critérios do edital com dono, ordem de ataque, armadilhas |
-| [`docs/divisao-tarefas.md`](docs/divisao-tarefas.md) | Seção "Entrega 2 — redivisão após ADR-015": quem faz o quê |
-| [`docs/roteiro-video-entrega-2.md`](docs/roteiro-video-entrega-2.md) | Roteiro cronometrado do vídeo (3 a 5 min, dois narradores) |
-| `AEP_Entrega2_Agasalha.pdf` | Ficha de identificação do edital, faltando só o link do vídeo |
+| `itens` | agasalhos; `doacaoId` e `abrigoId` opcionais |
+| `doadores` | quem doa |
+| `doacoes` | liga um `doadorId` a um `abrigoId` |
+| `abrigos` | `endereco` aninhado e lista de subdocumentos `demandas[]` |
+
+Endpoints: `/api/abrigos`, `/api/abrigos/{id}/demandas`, `/api/doadores`,
+`/api/doacoes` e `/api/doacoes/{id}/itens`, além do `POST /api/matches`. Contrato em
+[`docs/http-api.md`](docs/http-api.md), modelo das coleções e diagrama em
+[`docs/arquitetura.md`](docs/arquitetura.md), decisões em
+[`docs/decisoes.md`](docs/decisoes.md) (ADR-016).
+
+Cobertura: rode `./mvnw clean verify` com o Docker em execução (os testes de
+integração usam Testcontainers) e abra `target/site/jacoco/index.html`.

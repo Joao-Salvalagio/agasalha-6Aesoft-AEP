@@ -1,3 +1,4 @@
+
 package br.com.cesumar.agasalha.controller.dto;
 
 import br.com.cesumar.agasalha.model.Genero;

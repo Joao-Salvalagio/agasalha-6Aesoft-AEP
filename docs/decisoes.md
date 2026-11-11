@@ -199,3 +199,30 @@ pelos dois integrantes remanescentes; manter ou não o RA do João na ficha é
 decisão deles com a coordenação, fora do escopo deste repositório. O histórico de
 commits, Pull Requests e branches da Entrega 1 permanece intocado — o ADR-013
 continua valendo e nada é apagado.
+
+## ADR-016 — Doadores, doações e vínculo do item (Entrega 2)
+
+**Contexto:** RN-15 pede coleções próprias para doador e doação e referências sem
+duplicar dados. O planejamento da Entrega 2 lista os endpoints `/api/abrigos`,
+`/api/abrigos/{id}/demandas` e `/api/doadores`, mas não diz como uma doação nasce,
+como um item passa a ter `doacaoId`, nem o que acontece ao remover um registro
+referenciado. Também deixa o `nomeDoador`/`contatoDoador` de RN-02 em conflito com
+a frase "não há duplicação de dados do doador dentro de `item`" de RN-15.
+**Decisão:** quatro pontos, todos aditivos e sem alterar o contrato da Entrega 1:
+1. **Doação e item vinculado:** `POST /api/doacoes` (valida `doadorId` e `abrigoId`),
+   `GET /api/doacoes/{id}` e `POST /api/doacoes/{id}/itens`, que cria um item com
+   `doacaoId`. `item` ganha `doacaoId` e `abrigoId` opcionais e `ItemResponse` os
+   devolve, nulos nos itens da Entrega 1. O `abrigoId` do item não é preenchido por
+   este código: o `POST /api/matches` só sugere (`docs/http-api.md`), então quem
+   passar a registrar um casamento usa esse campo.
+2. **RN-02 só sem doação:** `nomeDoador` e `contatoDoador` continuam obrigatórios
+   em `POST /api/itens`. Item criado dentro de uma doação não os guarda; o doador
+   vem navegando `item → doacao → doador`.
+3. **Integridade referencial:** doador com doação, e abrigo com doação ou item
+   referenciando, não podem ser removidos (`409`).
+4. **Demandas por posição:** `PUT` e `DELETE` em
+   `/api/abrigos/{id}/demandas/{posicao}` usam a posição na lista (base 0), como o
+   agregado `Abrigo` já expõe; `DemandaResponse` devolve a `posicao`.
+   **Consequência:** o frontend de `apps/web` mostra nome e contato do doador só para
+   itens da Entrega 1; para itens de doação ele precisaria resolver o doador pelas
+   duas referências. Cada ponto é isolado e pode ser revertido sem mexer nos demais.

@@ -1,3 +1,4 @@
+
 package br.com.cesumar.agasalha.exception;
 
 public class MatchNaoEncontradoException extends RuntimeException {

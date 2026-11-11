@@ -1,3 +1,4 @@
+
 package br.com.cesumar.agasalha.model;
 
 import br.com.cesumar.agasalha.exception.DadosInvalidosException;
@@ -23,6 +24,8 @@ public class ItemAgasalho {
     private String contatoDoador;
     private StatusItem status;
     private Instant dataCadastro;
+    private String doacaoId;
+    private String abrigoId;
 
     public ItemAgasalho() {
     }
@@ -45,8 +48,10 @@ public class ItemAgasalho {
         exigir(tamanho != null, "tamanho e obrigatorio");
         exigir(genero != null, "genero e obrigatorio");
         exigir(estadoConservacao != null, "estadoConservacao e obrigatorio");
-        exigir(nomeDoador != null && !nomeDoador.isBlank(), "nomeDoador e obrigatorio");
-        exigir(contatoDoador != null && !contatoDoador.isBlank(), "contatoDoador e obrigatorio");
+        if (doacaoId == null) {
+            exigir(nomeDoador != null && !nomeDoador.isBlank(), "nomeDoador e obrigatorio");
+            exigir(contatoDoador != null && !contatoDoador.isBlank(), "contatoDoador e obrigatorio");
+        }
         exigir(status != null, "status e obrigatorio");
         exigir(dataCadastro != null, "dataCadastro e obrigatorio");
     }

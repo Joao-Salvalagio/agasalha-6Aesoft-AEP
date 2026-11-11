@@ -1,3 +1,4 @@
+
 package br.com.cesumar.agasalha.model;
 
 import br.com.cesumar.agasalha.exception.DadosInvalidosException;

@@ -1,3 +1,4 @@
+
 package br.com.cesumar.agasalha.controller.dto;
 
 import br.com.cesumar.agasalha.model.EstadoConservacao;
@@ -17,5 +18,7 @@ public record ItemResponse(
         String nomeDoador,
         String contatoDoador,
         StatusItem status,
-        Instant dataCadastro) {
+        Instant dataCadastro,
+        String doacaoId,
+        String abrigoId) {
 }

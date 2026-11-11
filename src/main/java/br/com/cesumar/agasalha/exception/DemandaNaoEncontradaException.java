@@ -1,3 +1,4 @@
+
 package br.com.cesumar.agasalha.exception;
 
 public class DemandaNaoEncontradaException extends RuntimeException {

@@ -48,8 +48,8 @@ class MatchingServiceTest {
             "GG, GG, true"
     })
     void sugerir_tamanhoDoItemEDaDemanda_casaSomenteQuandoIgual(Tamanho tamanhoItem,
-                                                               Tamanho tamanhoDemanda,
-                                                               boolean casa) {
+                                                                Tamanho tamanhoDemanda,
+                                                                boolean casa) {
         Abrigo abrigo = abrigo("a1", 10, 0, demanda(tamanhoDemanda, Genero.UNISSEX, 5, 0));
 
         Optional<SugestaoMatch> resultado = service.sugerir(item(tamanhoItem, Genero.UNISSEX), List.of(abrigo));
@@ -70,8 +70,8 @@ class MatchingServiceTest {
             "FEMININO, UNISSEX, true"
     })
     void sugerir_generoDoItemEDaDemanda_seguePlanilhaDeCompatibilidade(Genero generoItem,
-                                                                      Genero generoDemanda,
-                                                                      boolean casa) {
+                                                                       Genero generoDemanda,
+                                                                       boolean casa) {
         Abrigo abrigo = abrigo("a1", 10, 0, demanda(Tamanho.M, generoDemanda, 5, 0));
 
         Optional<SugestaoMatch> resultado = service.sugerir(item(Tamanho.M, generoItem), List.of(abrigo));
@@ -90,8 +90,8 @@ class MatchingServiceTest {
             "1, 1, false"
     })
     void sugerir_estoqueDoAbrigo_bloqueiaQuandoEstoqueMaisUmExcedeCapacidade(int capacidade,
-                                                                           int estoque,
-                                                                           boolean casa) {
+                                                                             int estoque,
+                                                                             boolean casa) {
         Abrigo abrigo = abrigo("a1", capacidade, estoque, demanda(Tamanho.M, Genero.UNISSEX, 5, 0));
 
         Optional<SugestaoMatch> resultado = service.sugerir(item(Tamanho.M, Genero.UNISSEX), List.of(abrigo));
@@ -108,8 +108,8 @@ class MatchingServiceTest {
             "1, 1, false"
     })
     void sugerir_demandaEmAberto_casaSomenteQuandoAtendidaMenorQueNecessaria(int necessaria,
-                                                                            int atendida,
-                                                                            boolean casa) {
+                                                                             int atendida,
+                                                                             boolean casa) {
         Abrigo abrigo = abrigo("a1", 10, 0, demanda(Tamanho.M, Genero.UNISSEX, necessaria, atendida));
 
         Optional<SugestaoMatch> resultado = service.sugerir(item(Tamanho.M, Genero.UNISSEX), List.of(abrigo));

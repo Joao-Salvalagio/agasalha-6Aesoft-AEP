@@ -1,3 +1,4 @@
+
 package br.com.cesumar.agasalha.service;
 
 import br.com.cesumar.agasalha.model.Abrigo;

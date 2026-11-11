@@ -16,6 +16,7 @@ public abstract class MongoIT {
 
     @DynamicPropertySource
     static void configurarMongo(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", () -> MONGO_DB_CONTAINER.getReplicaSetUrl("agasalha_it"));
+        registry.add("spring.data.mongodb.uri",
+                () -> MONGO_DB_CONTAINER.getReplicaSetUrl("agasalha_it"));
     }
 }

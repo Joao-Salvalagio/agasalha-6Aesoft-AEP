@@ -58,7 +58,7 @@ contrato de endpoint ou stack; não edita `.md` já commitado.
 **Testes que escreve**
 - unit do `model` e dos enums (valores, `valueOf`, `validar()` em todos os campos);
 - unit do `ItemService` com `ItemRepository` e `MongoTemplate` **mockados** (CRUD
-  + filtro montando a `Query` certa).
+    + filtro montando a `Query` certa).
 
 **Regras de negócio:** RN-01, RN-02, RN-03, RN-05, RN-06.
 

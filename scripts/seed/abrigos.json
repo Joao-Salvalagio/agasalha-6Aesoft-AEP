@@ -1,3 +1,4 @@
+
 [
   {
     "nome": "Abrigo Esperanca",
@@ -11,8 +12,20 @@
     "capacidadeEstoque": 100,
     "estoqueAtual": 20,
     "demandas": [
-      { "tipoPeca": "CASACO", "tamanho": "M", "genero": "UNISSEX", "quantidadeNecessaria": 30, "quantidadeAtendida": 10 },
-      { "tipoPeca": "COBERTOR", "tamanho": "G", "genero": "UNISSEX", "quantidadeNecessaria": 20, "quantidadeAtendida": 5 }
+      {
+        "tipoPeca": "CASACO",
+        "tamanho": "M",
+        "genero": "UNISSEX",
+        "quantidadeNecessaria": 30,
+        "quantidadeAtendida": 10
+      },
+      {
+        "tipoPeca": "COBERTOR",
+        "tamanho": "G",
+        "genero": "UNISSEX",
+        "quantidadeNecessaria": 20,
+        "quantidadeAtendida": 5
+      }
     ]
   },
   {
@@ -27,8 +40,20 @@
     "capacidadeEstoque": 60,
     "estoqueAtual": 58,
     "demandas": [
-      { "tipoPeca": "BLUSA", "tamanho": "P", "genero": "FEMININO", "quantidadeNecessaria": 15, "quantidadeAtendida": 3 },
-      { "tipoPeca": "CALCA", "tamanho": "M", "genero": "MASCULINO", "quantidadeNecessaria": 12, "quantidadeAtendida": 12 }
+      {
+        "tipoPeca": "BLUSA",
+        "tamanho": "P",
+        "genero": "FEMININO",
+        "quantidadeNecessaria": 15,
+        "quantidadeAtendida": 3
+      },
+      {
+        "tipoPeca": "CALCA",
+        "tamanho": "M",
+        "genero": "MASCULINO",
+        "quantidadeNecessaria": 12,
+        "quantidadeAtendida": 12
+      }
     ]
   },
   {
@@ -43,8 +68,20 @@
     "capacidadeEstoque": 80,
     "estoqueAtual": 5,
     "demandas": [
-      { "tipoPeca": "CASACO", "tamanho": "G", "genero": "MASCULINO", "quantidadeNecessaria": 25, "quantidadeAtendida": 0 },
-      { "tipoPeca": "MEIA", "tamanho": "M", "genero": "UNISSEX", "quantidadeNecessaria": 40, "quantidadeAtendida": 15 }
+      {
+        "tipoPeca": "CASACO",
+        "tamanho": "G",
+        "genero": "MASCULINO",
+        "quantidadeNecessaria": 25,
+        "quantidadeAtendida": 0
+      },
+      {
+        "tipoPeca": "MEIA",
+        "tamanho": "M",
+        "genero": "UNISSEX",
+        "quantidadeNecessaria": 40,
+        "quantidadeAtendida": 15
+      }
     ]
   }
 ]
