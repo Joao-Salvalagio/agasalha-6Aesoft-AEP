@@ -68,7 +68,7 @@ export function MatchSugestao({ match, loading, erro, onAdicionar, adicionando, 
       <p className="mt-2 text-[13.5px] text-muted-foreground">
         O abrigo ainda precisa de {match.deficit} {TIPO_PECA_LABEL[match.tipoPeca].toLowerCase()} tamanho{' '}
         {match.tamanho}, {GENERO_LABEL[match.genero].toLowerCase()}. Ao enviar, a peça entra no estoque do
-        abrigo e abate a demanda. Depois disso dá para reservar e entregar.
+        abrigo, abate a demanda e fica reservada. Depois é só confirmar a entrega.
       </p>
       {erroAcao && (
         <p role="alert" className="mt-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] text-destructive">

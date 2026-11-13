@@ -11,7 +11,7 @@ O frontend comunica-se diretamente com o backend Spring Boot através da API RES
 
 ### Entregas do Projeto
 - **Entrega 1 (`v1.0`)**: Mural de itens/agasalhos, cadastro de doações, filtros dinâmicos e controle de ciclo de vida do item (`DISPONIVEL` → `RESERVADO` → `ENTREGUE`).
-- **Entrega 2 (`v2.0`)**: Gestão de abrigos, demandas, doadores e motor de *matching*. A peça é enviada a um abrigo a partir do match; reservar e entregar só valem depois disso.
+- **Entrega 2 (`v2.0`)**: Gestão de abrigos, demandas, doadores e motor de *matching*. A peça é enviada a um abrigo a partir do match (e fica reservada); reservar e entregar só valem depois disso.
 
 ---
 
@@ -67,7 +67,7 @@ As rotas são declaradas centralizadamente em `src/routes/` e renderizam as view
 |---|---|---|---|
 | `/` | `MuralPage` | `MainLayout` | Mural público com resumo, filtros e listagem de agasalhos. |
 | `/itens/novo` | `CadastrarItemPage` | `MainLayout` | Registra uma doação: escolhe um doador cadastrado (dropdown) e descreve a peça; ao final mostra a sugestão de match. |
-| `/itens/:id` | `DetalhesItemPage` | `MainLayout` | Detalhe da peça, doador, destino, match sugerido, botão "Enviar ao abrigo" e transições de status (liberadas só com abrigo). |
+| `/itens/:id` | `DetalhesItemPage` | `MainLayout` | Detalhe da peça, doador, destino, match sugerido, botão "Enviar ao abrigo" (reserva a peça) e transições de status (liberadas só com abrigo). |
 | `/itens/:id/editar` | `EditarItemPage` | `MainLayout` | Formulário para edição dos dados descritivos da peça (RN-05). Só para peça avulsa e não entregue. |
 | `/abrigos` | `AbrigosPage` | `MainLayout` | Lista de abrigos com estoque, demandas em aberto e resumo de déficit. |
 | `/abrigos/:id` | `DetalhesAbrigoPage` | `MainLayout` | Endereço, estoque e demandas com barra de progresso; criar, editar e remover demanda. |
@@ -275,7 +275,7 @@ export interface ItemResponse {
   - Transição válida: `RESERVADO` → `ENTREGUE`
   - Retorno: `ItemResponse` com `status: "ENTREGUE"`
 - **Tentativa de transição inválida:** retorna status `409 Conflict`.
-- **Item sem abrigo:** reservar e entregar também retornam `409 Conflict`. O abrigo é gravado por `POST /api/matches/confirmacao` ("Enviar ao abrigo"), que não altera o status (ADR-018).
+- **Item sem abrigo:** reservar e entregar também retornam `409 Conflict`. O abrigo é gravado por `POST /api/matches/confirmacao` ("Enviar ao abrigo"), que também reserva a peça: `DISPONIVEL` passa a `RESERVADO` (ADR-018).
 
 ---
 

@@ -208,7 +208,7 @@ class RelacionamentosIT extends MongoIT {
     }
 
     @Test
-    void enviarAoAbrigoEMudarEstado_mantemReferenciasEAtualizaSoOAbrigo() throws Exception {
+    void enviarAoAbrigoEEntregar_mantemReferenciasEAtualizaOAbrigo() throws Exception {
         Doador doador = salvarDoador();
         Abrigo abrigo = salvarAbrigo(new Demanda(TipoPeca.CASACO, Tamanho.M, Genero.UNISSEX, 30, 0));
         String doacaoId = criarDoacao(doador.getId(), abrigo.getId());
@@ -219,9 +219,6 @@ class RelacionamentosIT extends MongoIT {
         mockMvc.perform(post("/api/matches/confirmacao")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"itemId\":\"" + itemId + "\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("DISPONIVEL"));
-        mockMvc.perform(post("/api/itens/" + itemId + "/reserva"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("RESERVADO"))
                 .andExpect(jsonPath("$.doacaoId").value(doacaoId));

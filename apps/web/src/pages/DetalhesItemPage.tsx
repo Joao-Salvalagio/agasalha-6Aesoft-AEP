@@ -186,7 +186,7 @@ export function DetalhesItemPage() {
             {semAbrigo && !entregue && (
               <p className="flex w-full items-center gap-1.5 text-[13px] text-muted-foreground">
                 <Info className="size-4 shrink-0" aria-hidden="true" />
-                Envie a peça a um abrigo para liberar a reserva e a entrega.
+                Envie a peça a um abrigo: ela fica reservada e a entrega é liberada.
               </p>
             )}
             {edicaoBloqueada && (

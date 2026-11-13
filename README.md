@@ -115,7 +115,7 @@ Telas: mural com filtros (tamanho, tipo, gênero, status), cadastro de doação
 (escolhendo um doador cadastrado), detalhes, edição, abrigos com demandas e barra de
 progresso, doadores, e as transições `DISPONIVEL → RESERVADO → ENTREGUE`. Reservar e
 entregar só valem para a peça que já foi enviada a um abrigo (botão "Enviar ao abrigo"
-nos detalhes, quando há match).
+nos detalhes, quando há match; enviar já deixa a peça reservada).
 
 ## Escopo da medição de cobertura
 

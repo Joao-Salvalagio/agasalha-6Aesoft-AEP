@@ -43,7 +43,7 @@ class MatchServiceTest {
         itemRepository = mock(ItemRepository.class);
         abrigoRepository = mock(AbrigoRepository.class);
         service = new MatchService(itemRepository, abrigoRepository, new MatchingService(), new MatchMapper(),
-                new ItemMapper());
+                new ItemMapper(), new StatusTransitionService());
     }
 
     private ItemAgasalho item() {
@@ -114,7 +114,7 @@ class MatchServiceTest {
     }
 
     @Test
-    void confirmar_itemDisponivel_alocaNoAbrigoAtualizaNumerosEMantemOStatus() {
+    void confirmar_itemDisponivel_alocaNoAbrigoAtualizaNumerosEReserva() {
         Demanda demanda = new Demanda(TipoPeca.CASACO, Tamanho.M, Genero.UNISSEX, 5, 1);
         Abrigo abrigo = abrigo("a1", demanda);
         prepararConfirmacao(itemComId(StatusItem.DISPONIVEL), abrigo);
@@ -122,7 +122,7 @@ class MatchServiceTest {
         ItemResponse resposta = service.confirmar("i1");
 
         assertEquals("a1", resposta.abrigoId());
-        assertEquals(StatusItem.DISPONIVEL, resposta.status());
+        assertEquals(StatusItem.RESERVADO, resposta.status());
         assertEquals(1, abrigo.getEstoqueAtual());
         assertEquals(2, demanda.getQuantidadeAtendida());
         verify(abrigoRepository).save(abrigo);
@@ -170,5 +170,16 @@ class MatchServiceTest {
 
         verify(abrigoRepository, never()).save(any());
         verify(itemRepository, never()).save(any());
+    }
+
+    @Test
+    void confirmar_itemEntregueSemAbrigo_alocaEMantemEntregue() {
+        Abrigo abrigo = abrigo("a1", new Demanda(TipoPeca.CASACO, Tamanho.M, Genero.UNISSEX, 5, 0));
+        prepararConfirmacao(itemComId(StatusItem.ENTREGUE), abrigo);
+
+        ItemResponse resposta = service.confirmar("i1");
+
+        assertEquals("a1", resposta.abrigoId());
+        assertEquals(StatusItem.ENTREGUE, resposta.status());
     }
 }

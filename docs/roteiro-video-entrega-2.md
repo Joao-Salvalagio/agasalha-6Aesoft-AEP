@@ -103,7 +103,8 @@ O mural rodando em `localhost:5173`, seed limpo. Nada além do navegador.
    Confirmar entrega estão desabilitados, porque a peça ainda não tem abrigo
 6. Clicar em **Enviar ao abrigo** e abrir aquele abrigo para mostrar a barra de
    progresso subindo
-7. Voltar à peça: agora Reservar e Confirmar entrega estão liberados. Reservar e entregar
+7. Voltar à peça: ela agora está **Reservada** e a Confirmação de entrega está liberada.
+   Confirmar a entrega
 8. Registrar uma peça que **não casa** (tamanho ou gênero incompatível) e mostrar que
    nenhum match é sugerido
 9. Apontar que "Editar" desabilita sozinho depois da entrega
@@ -119,9 +120,9 @@ O mural rodando em `localhost:5173`, seed limpo. Nada além do navegador.
 > considera demanda que ainda está em aberto, e entre os abrigos compatíveis
 > prioriza o de **maior déficit** — quem está mais precisando recebe primeiro.
 >
-> O match é uma sugestão. Quando enviamos a peça ao abrigo, ela entra no estoque e
-> a barra daquele abrigo sobe na hora. Só a partir daí a peça pode ser reservada e
-> entregue.
+> O match é uma sugestão. Quando enviamos a peça ao abrigo, ela entra no estoque, fica
+> reservada e a barra daquele abrigo sobe na hora. Só a partir daí a entrega é
+> liberada.
 >
 > E aqui uma peça que não casa com nenhuma demanda: nenhuma sugestão. O matching
 > não força.

@@ -243,7 +243,7 @@ não é afetado.
 confirmar o match, que continua fora desta decisão. Enquanto isso, o item de uma
 doação sem abrigo mostra "sem destino definido" e recebe apenas a sugestão.
 
-## ADR-018 — Enviar a peça ao abrigo libera a máquina de estados
+## ADR-018 — Enviar a peça ao abrigo a reserva e libera a entrega
 
 **Contexto:** `POST /api/matches` só sugere (ADR-016): nada grava o destino da peça,
 soma ao estoque do abrigo ou abate a demanda. Reserva e entrega, por sua vez, mudavam
@@ -251,10 +251,12 @@ o status sem que a peça tivesse qualquer abrigo.
 **Decisão:** dois pontos ligados.
 1. `POST /api/matches/confirmacao`, com o corpo `{ "itemId" }` do match, recalcula o
    match no servidor (RN-10 a RN-14) e o aplica: grava o `abrigoId` no item e soma 1 ao
-   `estoqueAtual` e à `quantidadeAtendida` da demanda escolhida. O status não muda. Item
-   que já tem `abrigoId` responde `409`; sem abrigo compatível responde `404`.
+   `estoqueAtual` e à `quantidadeAtendida` da demanda escolhida e reserva a peça
+   (`DISPONIVEL` aplica `RESERVAR`; outro status fica como está). Item que já tem
+   `abrigoId` responde `409`; sem abrigo compatível responde `404`.
 2. `POST /api/itens/{id}/reserva` e `/entrega` exigem que o item já tenha `abrigoId`;
-   sem ele respondem `409`. As transições de RN-04 continuam as mesmas.
+   sem ele respondem `409`. As transições de RN-04 continuam as mesmas; na prática o
+   caminho é enviar ao abrigo (reservado) e depois entregar.
 **Consequência:** muda o contrato da Entrega 1: reservar e entregar deixam de funcionar
 em peça sem abrigo, e o mural não oferece mais "Reservar" direto na linha (o resumo do
 item não traz o `abrigoId`). O servidor decide o abrigo, o cliente não o envia. O Mongo

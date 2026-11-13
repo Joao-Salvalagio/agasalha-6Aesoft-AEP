@@ -101,10 +101,10 @@ class MatchControllerTest {
     }
 
     @Test
-    void confirmar_itemComMatch_retorna200ComItemNoAbrigo() throws Exception {
+    void confirmar_itemComMatch_retorna200ComItemReservadoNoAbrigo() throws Exception {
         when(matchService.confirmar("i1")).thenReturn(new ItemResponse(
                 "i1", TipoPeca.CASACO, Tamanho.M, Genero.UNISSEX, EstadoConservacao.USADO_BOM,
-                null, null, StatusItem.DISPONIVEL, Instant.parse("2026-06-01T10:00:00Z"), "o1", "a1"));
+                null, null, StatusItem.RESERVADO, Instant.parse("2026-06-01T10:00:00Z"), "o1", "a1"));
 
         mockMvc.perform(post("/api/matches/confirmacao")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -112,7 +112,7 @@ class MatchControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("i1"))
                 .andExpect(jsonPath("$.abrigoId").value("a1"))
-                .andExpect(jsonPath("$.status").value("DISPONIVEL"));
+                .andExpect(jsonPath("$.status").value("RESERVADO"));
     }
 
     @Test

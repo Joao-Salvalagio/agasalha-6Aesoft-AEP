@@ -147,5 +147,6 @@ apenas os identificadores.
 - só item sem `abrigoId` pode ser enviado (`409` caso contrário);
 - o abrigo e a demanda são os mesmos escolhidos por RN-10 a RN-14; sem escolha, `404`;
 - o envio soma 1 ao `estoqueAtual` do abrigo e à `quantidadeAtendida` da demanda e grava
-  o `abrigoId` no item, sem alterar o status;
+  o `abrigoId` no item e reserva a peça (`DISPONIVEL` aplica `RESERVAR`; outro status
+  não muda);
 - `RESERVAR` e `ENTREGAR` (RN-04) só valem para item com `abrigoId`; sem ele, `409`.

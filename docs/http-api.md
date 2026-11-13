@@ -244,7 +244,8 @@ campos continua funcionando como antes.
 | `POST` | `/api/matches/confirmacao` | `{ "itemId": "..." }` | `200` + `ItemResponse` | `400`, `404`, `409` |
 
 Aplica o match do item: grava o `abrigoId`, soma 1 ao estoque do abrigo e à
-`quantidadeAtendida` da demanda, sem mudar o status. `404` quando o item não existe ou
+`quantidadeAtendida` da demanda e reserva a peça (`DISPONIVEL` passa a `RESERVADO`).
+`404` quando o item não existe ou
 não há abrigo compatível; `409` quando o item já está em um abrigo.
 
 `POST /api/itens/{id}/reserva` e `POST /api/itens/{id}/entrega` passam a responder `409`

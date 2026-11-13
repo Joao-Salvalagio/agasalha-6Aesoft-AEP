@@ -168,7 +168,7 @@ class MatchApiIT extends MongoIT {
     }
 
     @Test
-    void confirmar_itemComAbrigoCompativel_alocaEAtualizaNumerosSemMudarStatus() throws Exception {
+    void confirmar_itemComAbrigoCompativel_alocaAtualizaNumerosEReserva() throws Exception {
         ItemAgasalho item = salvarItem(Tamanho.M, Genero.UNISSEX);
         Abrigo abrigo = salvarAbrigo("Central", 10, 2, demanda(Tamanho.M, Genero.UNISSEX, 5, 1));
 
@@ -177,7 +177,7 @@ class MatchApiIT extends MongoIT {
                         .content(corpo(item.getId())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.abrigoId").value(abrigo.getId()))
-                .andExpect(jsonPath("$.status").value("DISPONIVEL"));
+                .andExpect(jsonPath("$.status").value("RESERVADO"));
 
         mockMvc.perform(get("/api/abrigos/" + abrigo.getId()))
                 .andExpect(status().isOk())
@@ -186,7 +186,7 @@ class MatchApiIT extends MongoIT {
                 .andExpect(jsonPath("$.demandas[0].deficit").value(3));
         mockMvc.perform(get("/api/itens/" + item.getId()))
                 .andExpect(jsonPath("$.abrigoId").value(abrigo.getId()))
-                .andExpect(jsonPath("$.status").value("DISPONIVEL"));
+                .andExpect(jsonPath("$.status").value("RESERVADO"));
     }
 
     @Test
@@ -229,7 +229,7 @@ class MatchApiIT extends MongoIT {
     }
 
     @Test
-    void enviarAoAbrigo_liberaAMaquinaDeEstados() throws Exception {
+    void enviarAoAbrigo_reservaELiberaAEntrega() throws Exception {
         ItemAgasalho item = salvarItem(Tamanho.M, Genero.UNISSEX);
         salvarAbrigo("Central", 10, 0, demanda(Tamanho.M, Genero.UNISSEX, 5, 0));
 
@@ -239,11 +239,9 @@ class MatchApiIT extends MongoIT {
         mockMvc.perform(post("/api/matches/confirmacao")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(corpo(item.getId())))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(post("/api/itens/" + item.getId() + "/reserva"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("RESERVADO"));
+
         mockMvc.perform(post("/api/itens/" + item.getId() + "/entrega"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ENTREGUE"));
