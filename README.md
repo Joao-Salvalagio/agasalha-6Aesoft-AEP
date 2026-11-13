@@ -77,6 +77,11 @@ que **70%**.
 | `docs/glossario.md` | termos do domínio |
 | `docs/setup.md` | instalação passo a passo |
 | `docs/fluxo-trabalho-ia.md` | como conduzir a IA pelas regras |
+| `docs/versionamento.md` | gitflow passo a passo |
+| `docs/divisao-tarefas.md` | divisão do trabalho entre a equipe |
+| `docs/handoff-entrega-2.md` | requisitos e passos da Entrega 2 |
+| `docs/roteiro-video-entrega-2.md` | roteiro do vídeo de demonstração |
+| `apps/AGENTS.MD` | guia do frontend: rotas, endpoints e hooks |
 
 ## Equipe
 
