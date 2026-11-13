@@ -193,4 +193,47 @@ class AbrigoTest {
 
         assertFalse(abrigo.getDemandas().iterator().hasNext());
     }
+
+    @Test
+    void receberPeca_comEspacoEDemandaAberta_incrementaEstoqueEAtendida() {
+        Abrigo abrigo = new Abrigo("A", ENDERECO, 10, 3);
+        Demanda demanda = demanda(5, 2);
+
+        abrigo.receberPeca(demanda);
+
+        assertEquals(4, abrigo.getEstoqueAtual());
+        assertEquals(3, demanda.getQuantidadeAtendida());
+        assertEquals(2, demanda.deficit());
+    }
+
+    @Test
+    void receberPeca_ultimaVagaDoEstoque_aceita() {
+        Abrigo abrigo = new Abrigo("A", ENDERECO, 10, 9);
+
+        assertDoesNotThrow(() -> abrigo.receberPeca(demanda(5, 0)));
+
+        assertEquals(10, abrigo.getEstoqueAtual());
+    }
+
+    @Test
+    void receberPeca_semEspaco_lancaENaoAlteraNada() {
+        Abrigo abrigo = new Abrigo("A", ENDERECO, 10, 10);
+        Demanda demanda = demanda(5, 0);
+
+        assertThrows(DadosInvalidosException.class, () -> abrigo.receberPeca(demanda));
+
+        assertEquals(10, abrigo.getEstoqueAtual());
+        assertEquals(0, demanda.getQuantidadeAtendida());
+    }
+
+    @Test
+    void receberPeca_demandaJaAtendida_lancaENaoAlteraNada() {
+        Abrigo abrigo = new Abrigo("A", ENDERECO, 10, 3);
+        Demanda demanda = demanda(5, 5);
+
+        assertThrows(DadosInvalidosException.class, () -> abrigo.receberPeca(demanda));
+
+        assertEquals(3, abrigo.getEstoqueAtual());
+        assertEquals(5, demanda.getQuantidadeAtendida());
+    }
 }

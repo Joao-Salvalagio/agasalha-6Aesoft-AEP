@@ -111,8 +111,11 @@ não há configuração extra no navegador. Passo a passo e troubleshooting em
 [`docs/setup.md`](docs/setup.md); a arquitetura da camada web está em
 [`docs/arquitetura.md`](docs/arquitetura.md).
 
-Telas: mural com filtros (tamanho, tipo, gênero, status), cadastro, detalhes,
-edição e as transições `DISPONIVEL → RESERVADO → ENTREGUE`.
+Telas: mural com filtros (tamanho, tipo, gênero, status), cadastro de doação
+(escolhendo um doador cadastrado), detalhes, edição, abrigos com demandas e barra de
+progresso, doadores, e as transições `DISPONIVEL → RESERVADO → ENTREGUE`. Reservar e
+entregar só valem para a peça que já foi enviada a um abrigo (botão "Enviar ao abrigo"
+nos detalhes, quando há match; enviar já deixa a peça reservada).
 
 ## Escopo da medição de cobertura
 
@@ -137,14 +140,15 @@ cd apps/web && npm run build
 |---|---|
 | `itens` | agasalhos; `doacaoId` e `abrigoId` opcionais |
 | `doadores` | quem doa |
-| `doacoes` | liga um `doadorId` a um `abrigoId` |
+| `doacoes` | liga um `doadorId` a um `abrigoId` (opcional) |
 | `abrigos` | `endereco` aninhado e lista de subdocumentos `demandas[]` |
 
 Endpoints: `/api/abrigos`, `/api/abrigos/{id}/demandas`, `/api/doadores`,
-`/api/doacoes` e `/api/doacoes/{id}/itens`, além do `POST /api/matches`. Contrato em
+`/api/doacoes` e `/api/doacoes/{id}/itens`, além do `POST /api/matches` (sugere) e do
+`POST /api/matches/confirmacao` (envia a peça ao abrigo). Contrato em
 [`docs/http-api.md`](docs/http-api.md), modelo das coleções e diagrama em
 [`docs/arquitetura.md`](docs/arquitetura.md), decisões em
-[`docs/decisoes.md`](docs/decisoes.md) (ADR-016).
+[`docs/decisoes.md`](docs/decisoes.md) (ADR-016 a ADR-018).
 
 Cobertura: rode `./mvnw clean verify` com o Docker em execução (os testes de
 integração usam Testcontainers) e abra `target/site/jacoco/index.html`.

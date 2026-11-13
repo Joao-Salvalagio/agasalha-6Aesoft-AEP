@@ -133,3 +133,26 @@ Quando mais de um abrigo/demanda é compatível, escolhe o de **maior déficit**
 
 Não há duplicação de dados do doador ou do abrigo dentro de `item` ou `doacao` —
 apenas os identificadores.
+
+### RN-16 `[E2]` — Doação com abrigo opcional
+
+- `doacao` exige `doadorId`, e o doador precisa existir;
+- `abrigoId` é opcional; quando informado, o abrigo precisa existir e não pode ser
+  vazio;
+- doação sem abrigo é válida: o destino da peça é sugerido pelo matching (RN-10 a
+  RN-14) e não é gravado na doação.
+
+### RN-17 `[E2]` — Enviar a peça ao abrigo
+
+- só item sem `abrigoId` pode ser enviado (`409` caso contrário);
+- o abrigo e a demanda são os mesmos escolhidos por RN-10 a RN-14; sem escolha, `404`;
+- o envio soma 1 ao `estoqueAtual` do abrigo e à `quantidadeAtendida` da demanda e grava
+  o `abrigoId` no item e reserva a peça (`DISPONIVEL` aplica `RESERVAR`; outro status
+  não muda);
+- `RESERVAR` e `ENTREGAR` (RN-04) só valem para item com `abrigoId`; sem ele, `409`.
+
+### RN-18 `[E2]` — Compatibilidade de tipo de peça
+
+Item casa com demanda apenas se `item.tipoPeca == demanda.tipoPeca` (match exato), além
+das exigências de tamanho (RN-10) e gênero (RN-11). Uma blusa não é sugerida para um
+abrigo que só precisa de meia ou de casaco.

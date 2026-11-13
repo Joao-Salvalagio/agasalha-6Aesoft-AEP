@@ -224,3 +224,29 @@ todos obrigatórios; as demandas só mudam pelos endpoints de demanda.
 todos obrigatórios. O item criado não guarda dados do doador (ADR-016).
 `ItemResponse` ganha `doacaoId` e `abrigoId`, ambos opcionais e nulos para itens
 da Entrega 1.
+
+### Atualização — `abrigoId` opcional em `DoacaoCreateRequest` (ADR-017)
+
+`POST /api/doacoes` aceita o corpo só com o doador:
+
+```json
+{ "doadorId": "66b0c1e2f4a1b23c45d6e7b1" }
+```
+
+`abrigoId` é opcional. Se vier, precisa existir (`404`) e não pode ser vazio (`400`).
+`DoacaoResponse.abrigoId` é nulo quando a doação não tem abrigo. Quem envia os dois
+campos continua funcionando como antes.
+
+### Envio da peça ao abrigo (ADR-018)
+
+| Método | Caminho | Entrada | Sucesso | Erros |
+|---|---|---|---|---|
+| `POST` | `/api/matches/confirmacao` | `{ "itemId": "..." }` | `200` + `ItemResponse` | `400`, `404`, `409` |
+
+Aplica o match do item: grava o `abrigoId`, soma 1 ao estoque do abrigo e à
+`quantidadeAtendida` da demanda e reserva a peça (`DISPONIVEL` passa a `RESERVADO`).
+`404` quando o item não existe ou
+não há abrigo compatível; `409` quando o item já está em um abrigo.
+
+`POST /api/itens/{id}/reserva` e `POST /api/itens/{id}/entrega` passam a responder `409`
+também quando o item ainda não tem `abrigoId`.

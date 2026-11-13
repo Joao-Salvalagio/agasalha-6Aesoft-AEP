@@ -71,6 +71,19 @@ class DoacaoControllerTest {
     }
 
     @Test
+    void criar_semAbrigo_retorna201() throws Exception {
+        when(service.criar(any(DoacaoCreateRequest.class)))
+                .thenReturn(new DoacaoResponse("o2", "d1", null, Instant.parse("2026-06-01T10:00:00Z")));
+
+        mockMvc.perform(post("/api/doacoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"doadorId\":\"d1\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "/api/doacoes/o2"))
+                .andExpect(jsonPath("$.abrigoId").doesNotExist());
+    }
+
+    @Test
     void criar_referenciasEmBranco_retorna400() throws Exception {
         mockMvc.perform(post("/api/doacoes")
                         .contentType(MediaType.APPLICATION_JSON)

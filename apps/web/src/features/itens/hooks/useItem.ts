@@ -1,41 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import { useRequisicao } from '@/lib/useRequisicao';
 import type { ItemResponse } from '../interfaces/item.interface';
-import { ehApiException, itemService } from '../services/item.service';
+import { itemService } from '../services/item.service';
 
 interface UseItemState {
   item: ItemResponse | null;
   loading: boolean;
   erro: string | null;
+  recarregar: () => void;
 }
 
 export function useItem(id: string): UseItemState {
-  const [item, setItem] = useState<ItemResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelado = false;
-    setLoading(true);
-    setErro(null);
-
-    itemService
-      .buscarPorId(id)
-      .then((dados) => {
-        if (!cancelado) setItem(dados);
-      })
-      .catch((err) => {
-        if (!cancelado) {
-          setErro(ehApiException(err) ? err.errorData.erro : 'Erro ao carregar item');
-        }
-      })
-      .finally(() => {
-        if (!cancelado) setLoading(false);
-      });
-
-    return () => {
-      cancelado = true;
-    };
-  }, [id]);
-
-  return { item, loading, erro };
+  const buscar = useCallback(() => itemService.buscarPorId(id), [id]);
+  const { dados, loading, erro, recarregar } = useRequisicao(buscar, id, 'Erro ao carregar item');
+  return { item: dados, loading, erro, recarregar };
 }

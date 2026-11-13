@@ -5,6 +5,7 @@ import br.com.cesumar.agasalha.controller.dto.DoacaoResponse;
 import br.com.cesumar.agasalha.controller.dto.ItemDoacaoRequest;
 import br.com.cesumar.agasalha.controller.dto.ItemResponse;
 import br.com.cesumar.agasalha.exception.AbrigoNaoEncontradoException;
+import br.com.cesumar.agasalha.exception.DadosInvalidosException;
 import br.com.cesumar.agasalha.exception.DoacaoNaoEncontradaException;
 import br.com.cesumar.agasalha.exception.DoadorNaoEncontradoException;
 import br.com.cesumar.agasalha.mapper.DoacaoMapper;
@@ -93,6 +94,24 @@ class DoacaoServiceTest {
         when(abrigoRepository.existsById("a1")).thenReturn(false);
 
         assertThrows(AbrigoNaoEncontradoException.class, () -> service.criar(new DoacaoCreateRequest("d1", "a1")));
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void criar_semAbrigo_salvaSemConsultarAbrigo() {
+        when(doadorRepository.existsById("d1")).thenReturn(true);
+        when(repository.save(any(Doacao.class))).thenAnswer(i -> i.getArgument(0));
+
+        DoacaoResponse resposta = service.criar(new DoacaoCreateRequest("d1", null));
+
+        assertEquals("d1", resposta.doadorId());
+        assertNull(resposta.abrigoId());
+        verify(abrigoRepository, never()).existsById(any());
+    }
+
+    @Test
+    void criar_abrigoEmBranco_lancaDadosInvalidosENaoSalva() {
+        assertThrows(DadosInvalidosException.class, () -> service.criar(new DoacaoCreateRequest("d1", " ")));
         verify(repository, never()).save(any());
     }
 

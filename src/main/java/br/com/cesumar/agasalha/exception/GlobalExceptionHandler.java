@@ -70,6 +70,16 @@ public class GlobalExceptionHandler {
         return construir(HttpStatus.CONFLICT, ex.getMessage(), List.of());
     }
 
+    @ExceptionHandler(ItemSemAbrigoException.class)
+    public ResponseEntity<ApiError> tratarItemSemAbrigo(ItemSemAbrigoException ex) {
+        return construir(HttpStatus.CONFLICT, ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(ItemJaNoAbrigoException.class)
+    public ResponseEntity<ApiError> tratarItemJaNoAbrigo(ItemJaNoAbrigoException ex) {
+        return construir(HttpStatus.CONFLICT, ex.getMessage(), List.of());
+    }
+
     @ExceptionHandler(RegistroEmUsoException.class)
     public ResponseEntity<ApiError> tratarRegistroEmUso(RegistroEmUsoException ex) {
         return construir(HttpStatus.CONFLICT, ex.getMessage(), List.of());

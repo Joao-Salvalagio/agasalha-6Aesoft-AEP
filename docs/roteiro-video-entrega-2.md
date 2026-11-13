@@ -96,12 +96,18 @@ O mural rodando em `localhost:5173`, seed limpo. Nada além do navegador.
 
 1. Mural aberto com os itens e os badges de status
 2. Abrir a tela de **abrigos**: cada abrigo com suas demandas e a barra de progresso
-3. Cadastrar uma doação que **casa** com uma demanda em aberto
-4. Mostrar o **match sugerido** aparecendo: "Abrigo X"
-5. Confirmar, e mostrar a barra de progresso daquele abrigo subindo
-6. Cadastrar um item que **não casa** (tamanho ou gênero incompatível) e mostrar que nenhum match é sugerido
-7. Reservar e entregar um item — o ciclo de vida da primeira entrega continua valendo
-8. Apontar que "Editar Dados" desabilita sozinho depois da entrega
+3. Abrir **doadores** e cadastrar um doador (ou usar um do seed)
+4. Registrar uma doação escolhendo esse doador no dropdown, com uma peça que **casa**
+   com uma demanda em aberto
+5. Nos detalhes da peça, mostrar o **match sugerido**: "Abrigo X" — e que Reservar e
+   Confirmar entrega estão desabilitados, porque a peça ainda não tem abrigo
+6. Clicar em **Enviar ao abrigo** e abrir aquele abrigo para mostrar a barra de
+   progresso subindo
+7. Voltar à peça: ela agora está **Reservada** e a Confirmação de entrega está liberada.
+   Confirmar a entrega
+8. Registrar uma peça que **não casa** (tamanho ou gênero incompatível) e mostrar que
+   nenhum match é sugerido
+9. Apontar que "Editar" desabilita sozinho depois da entrega
 
 **O QUE FALAR (POR CIMA DA DEMONSTRAÇÃO)**
 
@@ -109,25 +115,27 @@ O mural rodando em `localhost:5173`, seed limpo. Nada além do navegador.
 > tela de abrigos: cada abrigo tem suas demandas, e a barra mostra o quanto de
 > cada demanda já foi atendido — o déficit.
 >
-> Quando uma doação é cadastrada, o motor de matching roda. Ele compara tamanho e
-> gênero, respeita o limite de estoque do abrigo, só considera demanda que ainda
-> está em aberto, e entre os abrigos compatíveis prioriza o de **maior déficit** —
-> quem está mais precisando recebe primeiro.
+> Uma doação agora nasce de um doador cadastrado. Ao abrir a peça, o motor de
+> matching compara tamanho e gênero, respeita o limite de estoque do abrigo, só
+> considera demanda que ainda está em aberto, e entre os abrigos compatíveis
+> prioriza o de **maior déficit** — quem está mais precisando recebe primeiro.
 >
-> Repare que ao confirmar, a barra daquele abrigo sobe na hora.
+> O match é uma sugestão. Quando enviamos a peça ao abrigo, ela entra no estoque, fica
+> reservada e a barra daquele abrigo sobe na hora. Só a partir daí a entrega é
+> liberada.
 >
-> E aqui um item que não casa com nenhuma demanda: tamanho incompatível, nenhuma
-> sugestão. O matching não força.
+> E aqui uma peça que não casa com nenhuma demanda: nenhuma sugestão. O matching
+> não força.
 >
 > O ciclo de vida do item continua sendo uma máquina de estados validada no
-> servidor: tentar reservar um item já entregue devolve 409 pela API, não só um
-> aviso na tela."
+> servidor: tentar reservar uma peça sem abrigo, ou já entregue, devolve 409 pela
+> API, não só um aviso na tela."
 
 **ORIENTAÇÃO**
 Este é o bloco mais longo e o que cobre "execução da PoC" e "principais
 resultados". Mova o mouse devagar e pause meio segundo depois de cada clique.
 
-O passo 6 — o item que **não** casa — parece desperdício de tempo, mas é o que
+O passo 8 — a peça que **não** casa — parece desperdício de tempo, mas é o que
 prova que existe regra de verdade e não um match sempre positivo. Vale os cinco
 segundos.
 

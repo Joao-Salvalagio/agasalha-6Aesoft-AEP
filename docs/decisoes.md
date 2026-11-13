@@ -226,3 +226,39 @@ a frase "não há duplicação de dados do doador dentro de `item`" de RN-15.
    **Consequência:** o frontend de `apps/web` mostra nome e contato do doador só para
    itens da Entrega 1; para itens de doação ele precisaria resolver o doador pelas
    duas referências. Cada ponto é isolado e pode ser revertido sem mexer nos demais.
+
+## ADR-017 — Doação sem abrigo; o destino vem do matching
+
+**Contexto:** o frontend passou a registrar a doação pelo doador cadastrado
+(`POST /api/doacoes` e depois `POST /api/doacoes/{id}/itens`). Com `abrigoId`
+obrigatório na doação, o doador teria de escolher o abrigo antes de a peça existir,
+o que tira a função do `POST /api/matches` (RN-10 a RN-14), que sugere o abrigo a
+partir da peça.
+**Decisão:** `abrigoId` passa a ser opcional em `POST /api/doacoes`. `doadorId`
+continua obrigatório e precisa existir (`404`). Quando `abrigoId` vem preenchido,
+precisa existir (`404`); em branco é rejeitado (`400`). Doação sem abrigo é válida e
+`DoacaoResponse` devolve `abrigoId` nulo. Mudança aditiva: quem já enviava `abrigoId`
+não é afetado.
+**Consequência:** o destino de uma peça só é gravado quando existir o passo de
+confirmar o match, que continua fora desta decisão. Enquanto isso, o item de uma
+doação sem abrigo mostra "sem destino definido" e recebe apenas a sugestão.
+
+## ADR-018 — Enviar a peça ao abrigo a reserva e libera a entrega
+
+**Contexto:** `POST /api/matches` só sugere (ADR-016): nada grava o destino da peça,
+soma ao estoque do abrigo ou abate a demanda. Reserva e entrega, por sua vez, mudavam
+o status sem que a peça tivesse qualquer abrigo.
+**Decisão:** dois pontos ligados.
+1. `POST /api/matches/confirmacao`, com o corpo `{ "itemId" }` do match, recalcula o
+   match no servidor (RN-10 a RN-14) e o aplica: grava o `abrigoId` no item e soma 1 ao
+   `estoqueAtual` e à `quantidadeAtendida` da demanda escolhida e reserva a peça
+   (`DISPONIVEL` aplica `RESERVAR`; outro status fica como está). Item que já tem
+   `abrigoId` responde `409`; sem abrigo compatível responde `404`.
+2. `POST /api/itens/{id}/reserva` e `/entrega` exigem que o item já tenha `abrigoId`;
+   sem ele respondem `409`. As transições de RN-04 continuam as mesmas; na prática o
+   caminho é enviar ao abrigo (reservado) e depois entregar.
+**Consequência:** muda o contrato da Entrega 1: reservar e entregar deixam de funcionar
+em peça sem abrigo, e o mural não oferece mais "Reservar" direto na linha (o resumo do
+item não traz o `abrigoId`). O servidor decide o abrigo, o cliente não o envia. O Mongo
+não tem transação nesta PoC: o abrigo é salvo antes do item, então uma falha entre os
+dois `save` deixaria o estoque somado sem o item ligado. Risco aceito para a PoC.

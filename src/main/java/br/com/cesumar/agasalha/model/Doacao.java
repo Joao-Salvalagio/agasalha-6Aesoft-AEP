@@ -31,7 +31,7 @@ public class Doacao {
 
     public void validar() {
         exigir(doadorId != null && !doadorId.isBlank(), "doadorId e obrigatorio");
-        exigir(abrigoId != null && !abrigoId.isBlank(), "abrigoId e obrigatorio");
+        exigir(abrigoId == null || !abrigoId.isBlank(), "abrigoId nao pode ser vazio");
         exigir(dataDoacao != null, "dataDoacao e obrigatorio");
     }
 

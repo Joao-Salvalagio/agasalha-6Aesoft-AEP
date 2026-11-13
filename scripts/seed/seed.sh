@@ -13,3 +13,6 @@ mongoimport --host "${MONGO_HOST:-mongo}" --db "${MONGO_DATABASE:-agasalha}" \
 
 mongoimport --host "${MONGO_HOST:-mongo}" --db "${MONGO_DATABASE:-agasalha}" \
   --collection doadores --jsonArray --drop --file /seed/doadores.json
+
+mongoimport --host "${MONGO_HOST:-mongo}" --db "${MONGO_DATABASE:-agasalha}" \
+  --collection doacoes --jsonArray --drop --file /seed/doacoes.json

@@ -1,13 +1,5 @@
-import { useState } from 'react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { CampoSelect, type OpcaoSelect } from '@/components/CampoSelect';
 import type { ItemFiltroParams } from '../interfaces/item.interface';
 import {
   GENERO_OPTIONS,
@@ -17,124 +9,61 @@ import {
 } from '../constants/item.constants';
 
 interface FiltrosMuralProps {
+  filtros: ItemFiltroParams;
   onFiltrar: (filtros: ItemFiltroParams) => void;
 }
 
-const VAZIO = '';
+function comTodos(rotulo: string, opcoes: readonly OpcaoSelect[]): OpcaoSelect[] {
+  return [{ value: '', label: rotulo }, ...opcoes];
+}
 
-export function FiltrosMural({ onFiltrar }: FiltrosMuralProps) {
-  const [tipoPeca, setTipoPeca] = useState<string>(VAZIO);
-  const [tamanho, setTamanho] = useState<string>(VAZIO);
-  const [genero, setGenero] = useState<string>(VAZIO);
-  const [status, setStatus] = useState<string>(VAZIO);
+export function FiltrosMural({ filtros, onFiltrar }: FiltrosMuralProps) {
+  const temFiltroAtivo = Object.values(filtros).some(Boolean);
 
-  const temFiltroAtivo = tipoPeca !== VAZIO || tamanho !== VAZIO || genero !== VAZIO || status !== VAZIO;
-
-  function handleChange(
-    campo: keyof ItemFiltroParams,
-    valor: string,
-    setValor: (v: string) => void,
-  ) {
-    setValor(valor);
-    const proximos: ItemFiltroParams = {
-      tipoPeca: tipoPeca as ItemFiltroParams['tipoPeca'] || undefined,
-      tamanho: tamanho as ItemFiltroParams['tamanho'] || undefined,
-      genero: genero as ItemFiltroParams['genero'] || undefined,
-      status: status as ItemFiltroParams['status'] || undefined,
-      [campo]: valor || undefined,
-    };
-    onFiltrar(proximos);
-  }
-
-  function limpar() {
-    setTipoPeca(VAZIO);
-    setTamanho(VAZIO);
-    setGenero(VAZIO);
-    setStatus(VAZIO);
-    onFiltrar({});
+  function alterar(campo: keyof ItemFiltroParams, valor: string) {
+    onFiltrar({ ...filtros, [campo]: valor || undefined });
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Select
-        value={tipoPeca}
-        onValueChange={(v: string | null) => handleChange('tipoPeca', v ?? VAZIO, setTipoPeca)}
+    <section
+      aria-labelledby="titulo-filtros"
+      className="mb-3.5 grid grid-cols-2 items-end gap-3.5 rounded-xl bg-card p-3.5 shadow-sm ring-1 ring-border lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:px-[18px] lg:py-4"
+    >
+      <h2 id="titulo-filtros" className="sr-only">
+        Filtrar peças
+      </h2>
+      <CampoSelect
+        rotulo="Tipo de peça"
+        opcoes={comTodos('Todos os tipos', TIPO_PECA_OPTIONS)}
+        valor={filtros.tipoPeca ?? ''}
+        onChange={(v) => alterar('tipoPeca', v)}
+      />
+      <CampoSelect
+        rotulo="Tamanho"
+        opcoes={comTodos('Todos os tamanhos', TAMANHO_OPTIONS)}
+        valor={filtros.tamanho ?? ''}
+        onChange={(v) => alterar('tamanho', v)}
+      />
+      <CampoSelect
+        rotulo="Gênero"
+        opcoes={comTodos('Todos', GENERO_OPTIONS)}
+        valor={filtros.genero ?? ''}
+        onChange={(v) => alterar('genero', v)}
+      />
+      <CampoSelect
+        rotulo="Status"
+        opcoes={comTodos('Todos os status', STATUS_OPTIONS)}
+        valor={filtros.status ?? ''}
+        onChange={(v) => alterar('status', v)}
+      />
+      <Button
+        variant="ghost"
+        className="col-span-2 h-10 justify-self-start px-3 lg:col-span-1"
+        disabled={!temFiltroAtivo}
+        onClick={() => onFiltrar({})}
       >
-        <SelectTrigger className="w-40">
-          <SelectValue placeholder="Tipo de peça" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={VAZIO}>Todos os tipos</SelectItem>
-          {TIPO_PECA_OPTIONS.map((o) => (
-            <SelectItem key={o.value} value={o.value}>
-              {o.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Select
-        value={tamanho}
-        onValueChange={(v: string | null) => handleChange('tamanho', v ?? VAZIO, setTamanho)}
-      >
-        <SelectTrigger className="w-32">
-          <SelectValue placeholder="Tamanho" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={VAZIO}>Todos</SelectItem>
-          {TAMANHO_OPTIONS.map((o) => (
-            <SelectItem key={o.value} value={o.value}>
-              {o.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Select
-        value={genero}
-        onValueChange={(v: string | null) => handleChange('genero', v ?? VAZIO, setGenero)}
-      >
-        <SelectTrigger className="w-36">
-          <SelectValue placeholder="Gênero" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={VAZIO}>Todos</SelectItem>
-          {GENERO_OPTIONS.map((o) => (
-            <SelectItem key={o.value} value={o.value}>
-              {o.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Select
-        value={status}
-        onValueChange={(v: string | null) => handleChange('status', v ?? VAZIO, setStatus)}
-      >
-        <SelectTrigger className="w-36">
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={VAZIO}>Todos</SelectItem>
-          {STATUS_OPTIONS.map((o) => (
-            <SelectItem key={o.value} value={o.value}>
-              {o.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {temFiltroAtivo && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={limpar}
-          className="gap-1 text-muted-foreground"
-        >
-          <X className="size-3.5" />
-          Limpar
-        </Button>
-      )}
-    </div>
+        Limpar filtros
+      </Button>
+    </section>
   );
 }

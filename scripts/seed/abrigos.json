@@ -1,6 +1,6 @@
-
 [
   {
+    "_id": { "$oid": "665f00000000000000000101" },
     "nome": "Abrigo Esperanca",
     "endereco": {
       "logradouro": "Rua das Flores",
@@ -29,6 +29,7 @@
     ]
   },
   {
+    "_id": { "$oid": "665f00000000000000000102" },
     "nome": "Casa de Acolhida Sao Jose",
     "endereco": {
       "logradouro": "Avenida Brasil",
@@ -57,6 +58,7 @@
     ]
   },
   {
+    "_id": { "$oid": "665f00000000000000000103" },
     "nome": "Abrigo Novo Amanhecer",
     "endereco": {
       "logradouro": "Rua Pioneiro Joao Alves",
