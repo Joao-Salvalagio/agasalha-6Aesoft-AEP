@@ -150,3 +150,9 @@ apenas os identificadores.
   o `abrigoId` no item e reserva a peça (`DISPONIVEL` aplica `RESERVAR`; outro status
   não muda);
 - `RESERVAR` e `ENTREGAR` (RN-04) só valem para item com `abrigoId`; sem ele, `409`.
+
+### RN-18 `[E2]` — Compatibilidade de tipo de peça
+
+Item casa com demanda apenas se `item.tipoPeca == demanda.tipoPeca` (match exato), além
+das exigências de tamanho (RN-10) e gênero (RN-11). Uma blusa não é sugerida para um
+abrigo que só precisa de meia ou de casaco.

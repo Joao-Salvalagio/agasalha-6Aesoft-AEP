@@ -195,4 +195,51 @@ class MatchingServiceTest {
 
         assertTrue(resultado.isEmpty());
     }
+
+    @ParameterizedTest
+    @CsvSource({
+            "CASACO, CASACO, true",
+            "BLUSA, BLUSA, true",
+            "BLUSA, MEIA, false",
+            "BLUSA, CASACO, false",
+            "CASACO, COBERTOR, false",
+            "OUTRO, OUTRO, true",
+            "OUTRO, CALCA, false"
+    })
+    void sugerir_tipoDaPecaEDaDemanda_casaSomenteQuandoIgual(TipoPeca tipoItem, TipoPeca tipoDemanda,
+                                                             boolean casa) {
+        ItemAgasalho item = new ItemAgasalho(tipoItem, Tamanho.M, Genero.UNISSEX,
+                EstadoConservacao.USADO_BOM, "Maria", "maria@email.com");
+        Abrigo abrigo = abrigo("a1", 10, 0,
+                new Demanda(tipoDemanda, Tamanho.M, Genero.UNISSEX, 5, 0));
+
+        Optional<SugestaoMatch> resultado = service.sugerir(item, List.of(abrigo));
+
+        assertEquals(casa, resultado.isPresent());
+    }
+
+    @Test
+    void sugerir_blusaMComAbrigoQuePrecisaDeMeiaMECasacoG_naoSugereNada() {
+        ItemAgasalho blusa = new ItemAgasalho(TipoPeca.BLUSA, Tamanho.M, Genero.UNISSEX,
+                EstadoConservacao.USADO_BOM, "Maria", "maria@email.com");
+        Abrigo abrigo = abrigo("a1", 10, 0,
+                new Demanda(TipoPeca.MEIA, Tamanho.M, Genero.UNISSEX, 40, 15),
+                new Demanda(TipoPeca.CASACO, Tamanho.G, Genero.MASCULINO, 25, 0));
+
+        assertTrue(service.sugerir(blusa, List.of(abrigo)).isEmpty());
+    }
+
+    @Test
+    void sugerir_doisAbrigosComTiposDiferentes_escolheOQueTemODoTipoDaPecaMesmoComMenorDeficit() {
+        ItemAgasalho blusa = new ItemAgasalho(TipoPeca.BLUSA, Tamanho.M, Genero.UNISSEX,
+                EstadoConservacao.USADO_BOM, "Maria", "maria@email.com");
+        Abrigo maiorDeficitOutroTipo = abrigo("a1", 10, 0,
+                new Demanda(TipoPeca.MEIA, Tamanho.M, Genero.UNISSEX, 40, 0));
+        Abrigo menorDeficitMesmoTipo = abrigo("a2", 10, 0,
+                new Demanda(TipoPeca.BLUSA, Tamanho.M, Genero.UNISSEX, 5, 4));
+
+        Optional<SugestaoMatch> resultado = service.sugerir(blusa, List.of(maiorDeficitOutroTipo, menorDeficitMesmoTipo));
+
+        assertSame(menorDeficitMesmoTipo, resultado.orElseThrow().abrigo());
+    }
 }

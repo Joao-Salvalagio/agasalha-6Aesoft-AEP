@@ -29,6 +29,7 @@ public class MatchingService {
 
     private boolean compativel(ItemAgasalho item, Demanda demanda) {
         return demanda.emAberto()
+                && item.getTipoPeca() == demanda.getTipoPeca()
                 && item.getTamanho() == demanda.getTamanho()
                 && generoCompativel(item.getGenero(), demanda.getGenero());
     }

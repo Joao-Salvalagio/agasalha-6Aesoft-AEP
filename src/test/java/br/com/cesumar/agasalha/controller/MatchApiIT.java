@@ -246,4 +246,18 @@ class MatchApiIT extends MongoIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ENTREGUE"));
     }
+
+    @Test
+    void sugerir_pecaDeTipoDiferenteDaDemanda_retorna404() throws Exception {
+        ItemAgasalho blusa = itemRepository.save(new ItemAgasalho(TipoPeca.BLUSA, Tamanho.M, Genero.UNISSEX,
+                EstadoConservacao.USADO_BOM, "Ana", "ana@exemplo.com"));
+        Abrigo abrigo = new Abrigo("Central", new Endereco("Rua A", "1", "Centro", "Maringa", "PR"), 10, 0);
+        abrigo.adicionarDemanda(new Demanda(TipoPeca.MEIA, Tamanho.M, Genero.UNISSEX, 40, 15));
+        abrigoRepository.save(abrigo);
+
+        mockMvc.perform(post("/api/matches")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo(blusa.getId())))
+                .andExpect(status().isNotFound());
+    }
 }
