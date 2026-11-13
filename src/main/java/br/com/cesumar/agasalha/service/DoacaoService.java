@@ -31,14 +31,14 @@ public class DoacaoService {
     private final ItemMapper itemMapper;
 
     public DoacaoResponse criar(DoacaoCreateRequest req) {
-        if (!doadorRepository.existsById(req.doadorId())) {
-            throw new DoadorNaoEncontradoException(req.doadorId());
-        }
-        if (!abrigoRepository.existsById(req.abrigoId())) {
-            throw new AbrigoNaoEncontradoException(req.abrigoId());
-        }
         Doacao nova = mapper.paraModel(req);
         nova.validar();
+        if (!doadorRepository.existsById(nova.getDoadorId())) {
+            throw new DoadorNaoEncontradoException(nova.getDoadorId());
+        }
+        if (nova.getAbrigoId() != null && !abrigoRepository.existsById(nova.getAbrigoId())) {
+            throw new AbrigoNaoEncontradoException(nova.getAbrigoId());
+        }
         return mapper.paraResponse(repository.save(nova));
     }
 

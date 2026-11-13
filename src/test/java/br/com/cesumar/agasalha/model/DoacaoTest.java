@@ -35,8 +35,8 @@ class DoacaoTest {
     }
 
     @Test
-    void validar_abrigoIdNulo_lanca() {
-        assertThrows(DadosInvalidosException.class, () -> new Doacao("doador1", null).validar());
+    void validar_semAbrigo_naoLanca() {
+        assertDoesNotThrow(() -> new Doacao("doador1", null).validar());
     }
 
     @Test

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+import { Send, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { GENERO_LABEL, TIPO_PECA_LABEL } from '@/features/itens/constants/item.constants';
 import type { MatchResponse } from '../interfaces/match.interface';
@@ -8,9 +9,12 @@ interface MatchSugestaoProps {
   match: MatchResponse | null;
   loading: boolean;
   erro: string | null;
+  onAdicionar: () => void;
+  adicionando: boolean;
+  erroAcao: string | null;
 }
 
-export function MatchSugestao({ match, loading, erro }: MatchSugestaoProps) {
+export function MatchSugestao({ match, loading, erro, onAdicionar, adicionando, erroAcao }: MatchSugestaoProps) {
   if (loading) {
     return (
       <div role="status" className="rounded-xl bg-card p-5 ring-1 ring-border">
@@ -63,9 +67,22 @@ export function MatchSugestao({ match, loading, erro }: MatchSugestaoProps) {
       </p>
       <p className="mt-2 text-[13.5px] text-muted-foreground">
         O abrigo ainda precisa de {match.deficit} {TIPO_PECA_LABEL[match.tipoPeca].toLowerCase()} tamanho{' '}
-        {match.tamanho}, {GENERO_LABEL[match.genero].toLowerCase()}. É só uma sugestão: reserva e entrega são
-        combinadas com a equipe do abrigo.
+        {match.tamanho}, {GENERO_LABEL[match.genero].toLowerCase()}. Ao enviar, a peça entra no estoque do
+        abrigo e abate a demanda. Depois disso dá para reservar e entregar.
       </p>
+      {erroAcao && (
+        <p role="alert" className="mt-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] text-destructive">
+          {erroAcao}
+        </p>
+      )}
+      <Button
+        className="mt-3.5 h-10 w-full rounded-xl px-4 text-sm font-semibold"
+        disabled={adicionando}
+        onClick={onAdicionar}
+      >
+        <Send aria-hidden="true" />
+        {adicionando ? 'Enviando…' : `Enviar ao ${match.abrigoNome}`}
+      </Button>
       <p className="mt-3">
         <Link to={`/abrigos/${match.abrigoId}`} className="font-semibold text-primary underline underline-offset-3">
           Ver demandas do {match.abrigoNome}

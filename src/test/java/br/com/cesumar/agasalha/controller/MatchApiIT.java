@@ -21,6 +21,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -163,5 +165,87 @@ class MatchApiIT extends MongoIT {
         Abrigo recarregado = abrigoRepository.findById(abrigo.getId()).orElseThrow();
         assertEquals(7, recarregado.getEstoqueAtual());
         assertEquals(4, recarregado.getDemandas().get(0).getQuantidadeAtendida());
+    }
+
+    @Test
+    void confirmar_itemComAbrigoCompativel_alocaEAtualizaNumerosSemMudarStatus() throws Exception {
+        ItemAgasalho item = salvarItem(Tamanho.M, Genero.UNISSEX);
+        Abrigo abrigo = salvarAbrigo("Central", 10, 2, demanda(Tamanho.M, Genero.UNISSEX, 5, 1));
+
+        mockMvc.perform(post("/api/matches/confirmacao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo(item.getId())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.abrigoId").value(abrigo.getId()))
+                .andExpect(jsonPath("$.status").value("DISPONIVEL"));
+
+        mockMvc.perform(get("/api/abrigos/" + abrigo.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.estoqueAtual").value(3))
+                .andExpect(jsonPath("$.demandas[0].quantidadeAtendida").value(2))
+                .andExpect(jsonPath("$.demandas[0].deficit").value(3));
+        mockMvc.perform(get("/api/itens/" + item.getId()))
+                .andExpect(jsonPath("$.abrigoId").value(abrigo.getId()))
+                .andExpect(jsonPath("$.status").value("DISPONIVEL"));
+    }
+
+    @Test
+    void confirmar_segundaVezNoMesmoItem_retorna409SemMudarOAbrigo() throws Exception {
+        ItemAgasalho item = salvarItem(Tamanho.M, Genero.UNISSEX);
+        Abrigo abrigo = salvarAbrigo("Central", 10, 0, demanda(Tamanho.M, Genero.UNISSEX, 5, 0));
+        mockMvc.perform(post("/api/matches/confirmacao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo(item.getId())))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/matches/confirmacao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo(item.getId())))
+                .andExpect(status().isConflict());
+
+        assertEquals(1, abrigoRepository.findById(abrigo.getId()).orElseThrow().getEstoqueAtual());
+    }
+
+    @Test
+    void confirmar_abrigoSemEspaco_retorna404ENaoGravaNada() throws Exception {
+        ItemAgasalho item = salvarItem(Tamanho.M, Genero.UNISSEX);
+        Abrigo abrigo = salvarAbrigo("Cheio", 5, 5, demanda(Tamanho.M, Genero.UNISSEX, 5, 0));
+
+        mockMvc.perform(post("/api/matches/confirmacao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo(item.getId())))
+                .andExpect(status().isNotFound());
+
+        assertEquals(5, abrigoRepository.findById(abrigo.getId()).orElseThrow().getEstoqueAtual());
+        assertNull(itemRepository.findById(item.getId()).orElseThrow().getAbrigoId());
+    }
+
+    @Test
+    void confirmar_itemInexistente_retorna404() throws Exception {
+        mockMvc.perform(post("/api/matches/confirmacao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo("inexistente")))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void enviarAoAbrigo_liberaAMaquinaDeEstados() throws Exception {
+        ItemAgasalho item = salvarItem(Tamanho.M, Genero.UNISSEX);
+        salvarAbrigo("Central", 10, 0, demanda(Tamanho.M, Genero.UNISSEX, 5, 0));
+
+        mockMvc.perform(post("/api/itens/" + item.getId() + "/reserva"))
+                .andExpect(status().isConflict());
+
+        mockMvc.perform(post("/api/matches/confirmacao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(corpo(item.getId())))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/itens/" + item.getId() + "/reserva"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("RESERVADO"));
+        mockMvc.perform(post("/api/itens/" + item.getId() + "/entrega"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ENTREGUE"));
     }
 }

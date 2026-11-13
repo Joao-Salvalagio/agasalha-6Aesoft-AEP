@@ -38,6 +38,13 @@ public class Abrigo {
         return estoqueAtual + 1 <= capacidadeEstoque;
     }
 
+    public void receberPeca(Demanda demanda) {
+        exigir(temEspaco(), "abrigo sem espaco no estoque");
+        exigir(demanda.emAberto(), "demanda ja foi atendida");
+        estoqueAtual++;
+        demanda.setQuantidadeAtendida(demanda.getQuantidadeAtendida() + 1);
+    }
+
     public void adicionarDemanda(Demanda demanda) {
         demanda.validar();
         demandas.add(demanda);

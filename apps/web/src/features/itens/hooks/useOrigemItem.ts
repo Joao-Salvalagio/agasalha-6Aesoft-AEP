@@ -21,7 +21,7 @@ export function useOrigemItem(item: ItemResponse | null) {
 
     if (item.doacaoId) {
       const doacao = await doacaoService.buscarPorId(item.doacaoId);
-      abrigoId = abrigoId ?? doacao.abrigoId;
+      abrigoId = abrigoId ?? doacao.abrigoId ?? null;
       if (!doador) {
         const d = await doadorService.buscarPorId(doacao.doadorId);
         doador = { nome: d.nome, contato: d.contato };

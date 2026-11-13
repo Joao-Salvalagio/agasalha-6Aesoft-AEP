@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { StatusBadge } from '@/components/StatusBadge';
 import { cn } from '@/lib/utils';
 import { GENERO_LABEL, TIPO_PECA_LABEL } from '../constants/item.constants';
@@ -8,11 +8,9 @@ import { PecaIcone } from './PecaIcone';
 
 interface ItemLinhaProps {
   item: ItemSummaryResponse;
-  onReservar: (id: string) => void;
-  reservando: boolean;
 }
 
-export function ItemLinha({ item, onReservar, reservando }: ItemLinhaProps) {
+export function ItemLinha({ item }: ItemLinhaProps) {
   const descricao = `${TIPO_PECA_LABEL[item.tipoPeca]} ${item.tamanho} · ${GENERO_LABEL[item.genero]}`;
 
   return (
@@ -39,16 +37,6 @@ export function ItemLinha({ item, onReservar, reservando }: ItemLinhaProps) {
       <div className="col-span-full flex flex-wrap items-center justify-between gap-3.5 border-t border-border pt-3 sm:col-span-1 sm:justify-end sm:border-t-0 sm:pt-0">
         <StatusBadge status={item.status} />
         <div className="flex gap-2">
-          {item.status === 'DISPONIVEL' && (
-            <Button
-              size="lg"
-              className="h-9 rounded-[10px] px-3.5 text-sm font-semibold"
-              disabled={reservando}
-              onClick={() => onReservar(item.id)}
-            >
-              Reservar<span className="sr-only"> {descricao}</span>
-            </Button>
-          )}
           <Link
             to={`/itens/${item.id}`}
             className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'h-9 rounded-[10px] px-3.5 text-sm font-semibold')}

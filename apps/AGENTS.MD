@@ -11,7 +11,7 @@ O frontend comunica-se diretamente com o backend Spring Boot através da API RES
 
 ### Entregas do Projeto
 - **Entrega 1 (`v1.0`)**: Mural de itens/agasalhos, cadastro de doações, filtros dinâmicos e controle de ciclo de vida do item (`DISPONIVEL` → `RESERVADO` → `ENTREGUE`).
-- **Entrega 2 (`v2.0`)**: Gestão de abrigos, demandas, doadores e motor de *matching*.
+- **Entrega 2 (`v2.0`)**: Gestão de abrigos, demandas, doadores e motor de *matching*. A peça é enviada a um abrigo a partir do match; reservar e entregar só valem depois disso.
 
 ---
 
@@ -65,10 +65,13 @@ As rotas são declaradas centralizadamente em `src/routes/` e renderizam as view
 
 | Rota Frontend | Componente de Página | Layout | Descrição e Ações |
 |---|---|---|---|
-| `/` | `MuralPage` | `MainLayout` | Mural público com listagem de agasalhos, filtros e botões de ação rápida. |
-| `/itens/novo` | `CadastrarItemPage` | `MainLayout` | Formulário para cadastrar uma nova doação de agasalho. |
-| `/itens/:id` | `DetalhesItemPage` | `MainLayout` | Visualização detalhada do item, dados do doador e transições de status. |
-| `/itens/:id/editar` | `EditarItemPage` | `MainLayout` | Formulário para edição dos dados descritivos da peça (RN-05). |
+| `/` | `MuralPage` | `MainLayout` | Mural público com resumo, filtros e listagem de agasalhos. |
+| `/itens/novo` | `CadastrarItemPage` | `MainLayout` | Registra uma doação: escolhe um doador cadastrado (dropdown) e descreve a peça; ao final mostra a sugestão de match. |
+| `/itens/:id` | `DetalhesItemPage` | `MainLayout` | Detalhe da peça, doador, destino, match sugerido, botão "Enviar ao abrigo" e transições de status (liberadas só com abrigo). |
+| `/itens/:id/editar` | `EditarItemPage` | `MainLayout` | Formulário para edição dos dados descritivos da peça (RN-05). Só para peça avulsa e não entregue. |
+| `/abrigos` | `AbrigosPage` | `MainLayout` | Lista de abrigos com estoque, demandas em aberto e resumo de déficit. |
+| `/abrigos/:id` | `DetalhesAbrigoPage` | `MainLayout` | Endereço, estoque e demandas com barra de progresso; criar, editar e remover demanda. |
+| `/doadores` | `DoadoresPage` | `MainLayout` | Lista de doadores e cadastro de novo doador. |
 | `*` | `NotFoundPage` | `MainLayout` | Tela de página não encontrada (404) com link de retorno ao mural. |
 
 ### 4.2. Estrutura do Roteador (`src/routes/index.tsx`)
@@ -79,6 +82,9 @@ import { MuralPage } from '@/pages/MuralPage';
 import { CadastrarItemPage } from '@/pages/CadastrarItemPage';
 import { DetalhesItemPage } from '@/pages/DetalhesItemPage';
 import { EditarItemPage } from '@/pages/EditarItemPage';
+import { AbrigosPage } from '@/pages/AbrigosPage';
+import { DetalhesAbrigoPage } from '@/pages/DetalhesAbrigoPage';
+import { DoadoresPage } from '@/pages/DoadoresPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -90,6 +96,9 @@ export const router = createBrowserRouter([
       { path: 'itens/novo', element: <CadastrarItemPage /> },
       { path: 'itens/:id', element: <DetalhesItemPage /> },
       { path: 'itens/:id/editar', element: <EditarItemPage /> },
+      { path: 'abrigos', element: <AbrigosPage /> },
+      { path: 'abrigos/:id', element: <DetalhesAbrigoPage /> },
+      { path: 'doadores', element: <DoadoresPage /> },
       { path: '404', element: <NotFoundPage /> },
       { path: '*', element: <Navigate to="/404" replace /> },
     ],
@@ -113,8 +122,21 @@ Todos os endpoints utilizam JSON no cabeçalho `Content-Type: application/json` 
 | `POST` | `/api/itens` | Body: `ItemCreateRequest` | `201 Created` (+ header `Location`) | `ItemResponse` | `400 Bad Request` |
 | `PUT` | `/api/itens/{id}` | Path: `id`, Body: `ItemUpdateRequest` | `200 OK` | `ItemResponse` | `400 Bad Request`, `404 Not Found` |
 | `DELETE` | `/api/itens/{id}` | Path: `id` (string) | `204 No Content` | *(sem corpo)* | `404 Not Found` |
-| `POST` | `/api/itens/{id}/reserva` | Path: `id` (string) | `200 OK` | `ItemResponse` | `404 Not Found`, `409 Conflict` |
-| `POST` | `/api/itens/{id}/entrega` | Path: `id` (string) | `200 OK` | `ItemResponse` | `404 Not Found`, `409 Conflict` |
+| `POST` | `/api/itens/{id}/reserva` | Path: `id` (string) | `200 OK` | `ItemResponse` | `404 Not Found`, `409 Conflict` (transição inválida ou item sem abrigo) |
+| `POST` | `/api/itens/{id}/entrega` | Path: `id` (string) | `200 OK` | `ItemResponse` | `404 Not Found`, `409 Conflict` (transição inválida ou item sem abrigo) |
+| `GET` | `/api/abrigos` | — | `200 OK` | `AbrigoResponse[]` | — |
+| `GET` | `/api/abrigos/{id}` | Path: `id` | `200 OK` | `AbrigoResponse` | `404 Not Found` |
+| `POST` | `/api/abrigos/{id}/demandas` | Body: `DemandaRequest` | `201 Created` | `DemandaResponse` | `400 Bad Request`, `404 Not Found` |
+| `PUT` | `/api/abrigos/{id}/demandas/{posicao}` | Body: `DemandaRequest` | `200 OK` | `DemandaResponse` | `400 Bad Request`, `404 Not Found` |
+| `DELETE` | `/api/abrigos/{id}/demandas/{posicao}` | — | `204 No Content` | *(sem corpo)* | `404 Not Found` |
+| `GET` | `/api/doadores` | — | `200 OK` | `DoadorResponse[]` | — |
+| `GET` | `/api/doadores/{id}` | Path: `id` | `200 OK` | `DoadorResponse` | `404 Not Found` |
+| `POST` | `/api/doadores` | Body: `DoadorCreateRequest` | `201 Created` | `DoadorResponse` | `400 Bad Request` |
+| `GET` | `/api/doacoes/{id}` | Path: `id` | `200 OK` | `DoacaoResponse` | `404 Not Found` |
+| `POST` | `/api/doacoes` | Body: `DoacaoCreateRequest` (`abrigoId` opcional) | `201 Created` | `DoacaoResponse` | `400 Bad Request`, `404 Not Found` |
+| `POST` | `/api/doacoes/{id}/itens` | Body: `ItemDoacaoRequest` | `201 Created` | `ItemResponse` | `400 Bad Request`, `404 Not Found` |
+| `POST` | `/api/matches` | Body: `{ itemId }` | `200 OK` | `MatchResponse` | `400 Bad Request`, `404 Not Found` (item ou abrigo compatível) |
+| `POST` | `/api/matches/confirmacao` | Body: `{ itemId }` | `200 OK` | `ItemResponse` | `400 Bad Request`, `404 Not Found`, `409 Conflict` (item já em um abrigo) |
 
 ---
 
@@ -214,10 +236,12 @@ export interface ItemResponse {
   tamanho: Tamanho;
   genero: Genero;
   estadoConservacao: EstadoConservacao;
-  nomeDoador: string;
-  contatoDoador: string;
+  nomeDoador: string | null;
+  contatoDoador: string | null;
   status: StatusItem;
   dataCadastro: string; // ISO-8601 UTC ex.: "2026-06-01T10:00:00Z"
+  doacaoId: string | null;
+  abrigoId: string | null;
 }
 ```
 
@@ -232,9 +256,13 @@ export interface ItemResponse {
   "nomeDoador": "Ana Souza",
   "contatoDoador": "ana@exemplo.com",
   "status": "DISPONIVEL",
-  "dataCadastro": "2026-06-01T10:00:00Z"
+  "dataCadastro": "2026-06-01T10:00:00Z",
+  "doacaoId": null,
+  "abrigoId": null
 }
 ```
+
+> Itens criados por uma doação (`POST /api/doacoes/{id}/itens`) vêm com `nomeDoador` e `contatoDoador` nulos; o doador é resolvido por `doacaoId`.
 
 ---
 
@@ -247,6 +275,7 @@ export interface ItemResponse {
   - Transição válida: `RESERVADO` → `ENTREGUE`
   - Retorno: `ItemResponse` com `status: "ENTREGUE"`
 - **Tentativa de transição inválida:** retorna status `409 Conflict`.
+- **Item sem abrigo:** reservar e entregar também retornam `409 Conflict`. O abrigo é gravado por `POST /api/matches/confirmacao` ("Enviar ao abrigo"), que não altera o status (ADR-018).
 
 ---
 
@@ -305,12 +334,17 @@ Para a IA nunca se perder, esta matriz define qual tela utiliza quais hooks e en
 | Tela (Rota) | Hook da Feature | Método do Service | Endpoint Consumido | Ação do Usuário |
 |---|---|---|---|---|
 | `/` (`MuralPage`) | `useItens(filtros)` | `itemService.listar` | `GET /api/itens` | Filtrar e visualizar lista de agasalhos |
-| `/` (`MuralPage`) | `useItemActions()` | `itemService.reservar` | `POST /api/itens/{id}/reserva` | Botão "Reservar" direto no card |
-| `/itens/novo` (`CadastrarItemPage`) | `useCriarItem()` | `itemService.criar` | `POST /api/itens` | Submissão do formulário de doação |
 | `/itens/:id` (`DetalhesItemPage`) | `useItem(id)` | `itemService.buscarPorId` | `GET /api/itens/{id}` | Carregar dados completos da peça |
 | `/itens/:id` (`DetalhesItemPage`) | `useItemActions()` | `itemService.reservar` / `entregar` | `POST .../reserva` ou `.../entrega` | Atualizar ciclo de vida do item |
 | `/itens/:id` (`DetalhesItemPage`) | `useItemActions()` | `itemService.excluir` | `DELETE /api/itens/{id}` | Botão "Excluir Doação" |
-| `/itens/:id/editar` (`EditarItemPage`) | `useItem(id)` + `useAtualizarItem()` | `itemService.buscarPorId` e `itemService.atualizar` | `GET /api/itens/{id}` e `PUT /api/itens/{id}` | Pré-popular e salvar alterações descritivas |
+| `/itens/:id/editar` (`EditarItemPage`) | `useItem(id)` + `useItemActions()` | `itemService.buscarPorId` e `itemService.atualizar` | `GET /api/itens/{id}` e `PUT /api/itens/{id}` | Pré-popular e salvar alterações descritivas |
+| `/itens/novo` (`CadastrarItemPage`) | `useDoadores()` + `useRegistrarDoacao()` | `doadorService.listar`, `doacaoService.criar` e `doacaoService.adicionarItem` | `GET /api/doadores`, `POST /api/doacoes` e `POST /api/doacoes/{id}/itens` | Escolher o doador e registrar a doação |
+| `/itens/novo` (`CadastrarItemPage`) | `useMatchSugerido()` | `matchService.sugerir` | `POST /api/matches` | Ver a sugestão de abrigo depois de salvar |
+| `/itens/:id` (`DetalhesItemPage`) | `useOrigemItem()` | `doacaoService.buscarPorId`, `doadorService.buscarPorId` e `abrigoService.buscarPorId` | `GET /api/doacoes/{id}`, `GET /api/doadores/{id}` e `GET /api/abrigos/{id}` | Mostrar doador e destino da peça |
+| `/itens/:id` (`DetalhesItemPage`) | `useMatchSugerido()` + `useConfirmarMatch()` | `matchService.sugerir` e `matchService.confirmar` | `POST /api/matches` e `POST /api/matches/confirmacao` | Botão "Enviar ao abrigo" |
+| `/abrigos` (`AbrigosPage`) | `useAbrigos()` | `abrigoService.listar` | `GET /api/abrigos` | Listar abrigos, estoque e déficit |
+| `/abrigos/:id` (`DetalhesAbrigoPage`) | `useAbrigo(id)` + `useDemandaActions()` | `abrigoService.buscarPorId`, `criarDemanda`, `atualizarDemanda` e `removerDemanda` | `GET /api/abrigos/{id}` e `/api/abrigos/{id}/demandas` | Gerir demandas do abrigo |
+| `/doadores` (`DoadoresPage`) | `useDoadores()` + `useCriarDoador()` | `doadorService.listar` e `doadorService.criar` | `GET /api/doadores` e `POST /api/doadores` | Listar e cadastrar doadores |
 
 ---
 
@@ -321,4 +355,4 @@ Para a IA nunca se perder, esta matriz define qual tela utiliza quais hooks e en
 3. **Consistência de Enums e Nomes:** Respeite rigorosamente a nomenclatura dos enums e campos do backend (`tipoPeca`, `nomeDoador`, `estadoConservacao`).
 4. **Sem Lógica de Negócio nos Componentes UI:** Primitivas de `components/ui/` devem permanecer puras e acessíveis.
 5. **Zero comentários desnecessários:** Siga a regra do projeto: código limpo, autoexplicativo, sem comentários redundantes.
-6. **Integridade de Estado:** Ações de reserva e entrega devem respeitar a máquina de estados; desabilite ou oculte botões para estados inválidos (ex.: não exibir "Reservar" em itens já reservados ou entregues).
+6. **Integridade de Estado:** Ações de reserva e entrega devem respeitar a máquina de estados; desabilite ou oculte botões para estados inválidos (ex.: não exibir "Reservar" em itens já reservados ou entregues). Reservar e entregar também ficam desabilitados enquanto a peça não tem abrigo (`abrigoId` nulo).

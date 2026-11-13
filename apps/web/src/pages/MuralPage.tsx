@@ -10,7 +10,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useDeficitTotal } from '@/features/abrigos/hooks/useDeficitTotal';
 import { FiltrosMural } from '@/features/itens/components/FiltrosMural';
 import { ItemLinha } from '@/features/itens/components/ItemLinha';
-import { useItemActions } from '@/features/itens/hooks/useItemActions';
 import { useItens } from '@/features/itens/hooks/useItens';
 import type { ItemFiltroParams } from '@/features/itens/interfaces/item.interface';
 import { cn } from '@/lib/utils';
@@ -22,15 +21,6 @@ export function MuralPage() {
   const filtrados = useItens(filtros);
   const todos = useItens();
   const deficitTotal = useDeficitTotal();
-  const { reservar, estado: acaoEstado } = useItemActions();
-
-  async function handleReservar(id: string) {
-    const resultado = await reservar(id);
-    if (resultado) {
-      filtrados.recarregar();
-      todos.recarregar();
-    }
-  }
 
   const disponiveis = todos.itens.filter((i) => i.status === 'DISPONIVEL').length;
   const reservadas = todos.itens.filter((i) => i.status === 'RESERVADO').length;
@@ -106,12 +96,6 @@ export function MuralPage() {
 
       <FiltrosMural filtros={filtros} onFiltrar={setFiltros} />
 
-      {acaoEstado.erro && (
-        <p role="alert" className="mb-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {acaoEstado.erro}
-        </p>
-      )}
-
       {filtrados.loading ? (
         <div role="status" className="flex flex-col gap-2.5">
           <span className="sr-only">Carregando peças…</span>
@@ -135,12 +119,7 @@ export function MuralPage() {
           </p>
           <ul aria-label="Peças do mural" className="flex flex-col gap-2.5">
             {filtrados.itens.map((item) => (
-              <ItemLinha
-                key={item.id}
-                item={item}
-                onReservar={handleReservar}
-                reservando={acaoEstado.loading}
-              />
+              <ItemLinha key={item.id} item={item} />
             ))}
           </ul>
         </>

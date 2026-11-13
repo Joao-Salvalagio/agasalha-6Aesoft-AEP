@@ -4,21 +4,28 @@ import { AlertCircle, Check, Info } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ItemForm } from '@/features/itens/components/ItemForm';
+import { DoacaoForm } from '@/features/doacoes/components/DoacaoForm';
+import { useRegistrarDoacao } from '@/features/doacoes/hooks/useRegistrarDoacao';
+import type { DoacaoFormData } from '@/features/doacoes/schemas/doacao.schema';
+import { useDoadores } from '@/features/doadores/hooks/useDoadores';
 import {
   ESTADO_CONSERVACAO_LABEL,
   GENERO_LABEL,
   TIPO_PECA_LABEL,
 } from '@/features/itens/constants/item.constants';
-import { useCriarItem } from '@/features/itens/hooks/useCriarItem';
 import type { ItemResponse } from '@/features/itens/interfaces/item.interface';
-import type { ItemFormData } from '@/features/itens/schemas/item.schema';
 import { useMatchSugerido } from '@/features/matches/hooks/useMatchSugerido';
 import { cn } from '@/lib/utils';
 
-function ResultadoDoacao({ item, onNova }: { item: ItemResponse; onNova: () => void }) {
+interface ResultadoDoacaoProps {
+  item: ItemResponse;
+  nomeDoador: string;
+  onNova: () => void;
+}
+
+function ResultadoDoacao({ item, nomeDoador, onNova }: ResultadoDoacaoProps) {
   const { dados: match, loading, erro } = useMatchSugerido(item.id, true);
-  const primeiroNome = item.nomeDoador?.split(' ')[0] ?? '';
+  const primeiroNome = nomeDoador.split(' ')[0];
   const titulo = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -36,7 +43,7 @@ function ResultadoDoacao({ item, onNova }: { item: ItemResponse; onNova: () => v
         ref={titulo}
         className="text-2xl font-extrabold tracking-tight outline-none"
       >
-        Doação registrada. Obrigado, {primeiroNome}!
+        Doação registrada{primeiroNome ? `. Obrigado, ${primeiroNome}!` : '!'}
       </h2>
       <p className="mt-2 text-muted-foreground">
         {TIPO_PECA_LABEL[item.tipoPeca]} {item.tamanho} · {GENERO_LABEL[item.genero]} (
@@ -110,13 +117,16 @@ function ResultadoDoacao({ item, onNova }: { item: ItemResponse; onNova: () => v
 
 export function CadastrarItemPage() {
   const navigate = useNavigate();
-  const { criar, loading, erro } = useCriarItem();
-  const [criado, setCriado] = useState<ItemResponse | null>(null);
+  const { registrar, loading, erro } = useRegistrarDoacao();
+  const doadores = useDoadores();
+  const [criado, setCriado] = useState<{ item: ItemResponse; nomeDoador: string } | null>(null);
   const [rodada, setRodada] = useState(0);
 
-  async function handleSubmit(dados: ItemFormData) {
-    const item = await criar(dados);
-    if (item) setCriado(item);
+  async function handleSubmit(dados: DoacaoFormData) {
+    const item = await registrar(dados);
+    if (!item) return;
+    const doador = doadores.dados?.find((d) => d.id === dados.doadorId);
+    setCriado({ item, nomeDoador: doador?.nome ?? '' });
   }
 
   return (
@@ -129,7 +139,8 @@ export function CadastrarItemPage() {
 
       {criado ? (
         <ResultadoDoacao
-          item={criado}
+          item={criado.item}
+          nomeDoador={criado.nomeDoador}
           onNova={() => {
             setCriado(null);
             setRodada((r) => r + 1);
@@ -137,8 +148,11 @@ export function CadastrarItemPage() {
         />
       ) : (
         <div className="grid items-start gap-[22px] lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-          <ItemForm
+          <DoacaoForm
             key={rodada}
+            doadores={doadores.dados}
+            carregandoDoadores={doadores.loading}
+            erroDoadores={doadores.erro}
             onSubmit={handleSubmit}
             onCancelar={() => navigate('/')}
             loading={loading}
@@ -150,7 +164,7 @@ export function CadastrarItemPage() {
             </h2>
             <ol className="flex flex-col gap-3.5">
               {[
-                'Você descreve a peça: tipo, tamanho e gênero.',
+                'Você escolhe o doador e descreve a peça: tipo, tamanho e gênero.',
                 'Cruzamos com as demandas em aberto dos abrigos.',
                 'Sugerimos o abrigo com maior déficit para essa peça.',
               ].map((passo, i) => (

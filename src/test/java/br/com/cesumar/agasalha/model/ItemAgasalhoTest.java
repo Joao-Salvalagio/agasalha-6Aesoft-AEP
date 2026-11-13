@@ -1,6 +1,7 @@
 package br.com.cesumar.agasalha.model;
 
 import br.com.cesumar.agasalha.exception.DadosInvalidosException;
+import br.com.cesumar.agasalha.exception.ItemJaNoAbrigoException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -81,5 +82,24 @@ class ItemAgasalhoTest {
         ItemAgasalho i = valido();
         i.setDataCadastro(null);
         assertThrows(DadosInvalidosException.class, i::validar);
+    }
+
+    @Test
+    void alocarEm_itemSemAbrigo_gravaOAbrigo() {
+        ItemAgasalho item = valido();
+
+        item.alocarEm("a1");
+
+        assertEquals("a1", item.getAbrigoId());
+    }
+
+    @Test
+    void alocarEm_itemJaComAbrigo_lancaEMantemOAbrigoOriginal() {
+        ItemAgasalho item = valido();
+        item.alocarEm("a1");
+
+        assertThrows(ItemJaNoAbrigoException.class, () -> item.alocarEm("a2"));
+
+        assertEquals("a1", item.getAbrigoId());
     }
 }

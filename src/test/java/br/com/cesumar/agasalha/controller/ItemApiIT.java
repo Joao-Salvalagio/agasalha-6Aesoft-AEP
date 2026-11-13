@@ -65,6 +65,13 @@ class ItemApiIT extends MongoIT {
         ItemAgasalho item = new ItemAgasalho(TipoPeca.CASACO, tamanho, Genero.UNISSEX,
                 EstadoConservacao.USADO_BOM, "Ana", "ana@exemplo.com");
         item.setStatus(status);
+        item.setAbrigoId("a1");
+        return repository.save(item);
+    }
+
+    private ItemAgasalho salvarItemSemAbrigo(StatusItem status) {
+        ItemAgasalho item = salvarItem(Tamanho.M, status);
+        item.setAbrigoId(null);
         return repository.save(item);
     }
 
@@ -234,5 +241,25 @@ class ItemApiIT extends MongoIT {
     void entregar_itemInexistente_retorna404() throws Exception {
         mockMvc.perform(post("/api/itens/inexistente/entrega"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void reservar_itemSemAbrigo_retorna409SemAlterarStatus() throws Exception {
+        ItemAgasalho item = salvarItemSemAbrigo(StatusItem.DISPONIVEL);
+
+        mockMvc.perform(post("/api/itens/" + item.getId() + "/reserva"))
+                .andExpect(status().isConflict());
+
+        assertEquals(StatusItem.DISPONIVEL, repository.findById(item.getId()).orElseThrow().getStatus());
+    }
+
+    @Test
+    void entregar_itemSemAbrigo_retorna409SemAlterarStatus() throws Exception {
+        ItemAgasalho item = salvarItemSemAbrigo(StatusItem.RESERVADO);
+
+        mockMvc.perform(post("/api/itens/" + item.getId() + "/entrega"))
+                .andExpect(status().isConflict());
+
+        assertEquals(StatusItem.RESERVADO, repository.findById(item.getId()).orElseThrow().getStatus());
     }
 }

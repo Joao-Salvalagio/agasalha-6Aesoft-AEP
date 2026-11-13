@@ -17,6 +17,7 @@ import { useItem } from '@/features/itens/hooks/useItem';
 import { useItemActions } from '@/features/itens/hooks/useItemActions';
 import { useOrigemItem } from '@/features/itens/hooks/useOrigemItem';
 import { MatchSugestao } from '@/features/matches/components/MatchSugestao';
+import { useConfirmarMatch } from '@/features/matches/hooks/useConfirmarMatch';
 import { useMatchSugerido } from '@/features/matches/hooks/useMatchSugerido';
 import { cn } from '@/lib/utils';
 
@@ -50,7 +51,9 @@ export function DetalhesItemPage() {
   const navigate = useNavigate();
   const { item, loading, erro, recarregar } = useItem(id!);
   const origem = useOrigemItem(item);
-  const match = useMatchSugerido(id!, item?.status === 'DISPONIVEL');
+  const podeEnviarAoAbrigo = item !== null && item.status !== 'ENTREGUE' && item.abrigoId === null;
+  const match = useMatchSugerido(id!, podeEnviarAoAbrigo);
+  const confirmacao = useConfirmarMatch();
   const { reservar, entregar, excluir, estado: acaoEstado } = useItemActions();
   const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
 
@@ -60,6 +63,10 @@ export function DetalhesItemPage() {
 
   async function handleEntregar() {
     if (await entregar(id!)) recarregar();
+  }
+
+  async function handleEnviarAoAbrigo() {
+    if (await confirmacao.confirmar(id!)) recarregar();
   }
 
   async function handleExcluir() {
@@ -102,6 +109,7 @@ export function DetalhesItemPage() {
   const entregue = item.status === 'ENTREGUE';
   const daDoacao = item.doacaoId !== null;
   const edicaoBloqueada = entregue || daDoacao;
+  const semAbrigo = item.abrigoId === null;
   const descricao = `${TIPO_PECA_LABEL[item.tipoPeca]} ${item.tamanho} · ${GENERO_LABEL[item.genero]}`;
   const doador = origem.dados?.doador ?? null;
   const destino = origem.dados?.destino ?? null;
@@ -148,13 +156,13 @@ export function DetalhesItemPage() {
               </p>
             )}
             {item.status === 'DISPONIVEL' && (
-              <Button className="h-[42px] rounded-xl px-[18px] text-[14.5px] font-semibold" disabled={acaoEstado.loading} onClick={handleReservar}>
+              <Button className="h-[42px] rounded-xl px-[18px] text-[14.5px] font-semibold" disabled={acaoEstado.loading || semAbrigo} onClick={handleReservar}>
                 <PackageCheck aria-hidden="true" />
                 {acaoEstado.loading ? 'Processando…' : 'Reservar'}
               </Button>
             )}
             {item.status === 'RESERVADO' && (
-              <Button className="h-[42px] rounded-xl bg-moss px-[18px] text-[14.5px] font-semibold text-white hover:bg-moss/90" disabled={acaoEstado.loading} onClick={handleEntregar}>
+              <Button className="h-[42px] rounded-xl bg-moss px-[18px] text-[14.5px] font-semibold text-white hover:bg-moss/90" disabled={acaoEstado.loading || semAbrigo} onClick={handleEntregar}>
                 <Truck aria-hidden="true" />
                 {acaoEstado.loading ? 'Processando…' : 'Confirmar entrega'}
               </Button>
@@ -175,6 +183,12 @@ export function DetalhesItemPage() {
               <Trash2 aria-hidden="true" />
               Excluir
             </Button>
+            {semAbrigo && !entregue && (
+              <p className="flex w-full items-center gap-1.5 text-[13px] text-muted-foreground">
+                <Info className="size-4 shrink-0" aria-hidden="true" />
+                Envie a peça a um abrigo para liberar a reserva e a entrega.
+              </p>
+            )}
             {edicaoBloqueada && (
               <p id="nota-edicao" className="flex w-full items-center gap-1.5 text-[13px] text-muted-foreground">
                 <Info className="size-4 shrink-0" aria-hidden="true" />
@@ -218,7 +232,8 @@ export function DetalhesItemPage() {
                 <span className="min-w-0">
                   <strong className="block">{destino.nome}</strong>
                   <span className="text-[13px] text-muted-foreground">
-                    {destino.cidade}/{destino.estado} · escolhido pelo doador
+                    {destino.cidade}/{destino.estado} ·{' '}
+                    {item.abrigoId ? 'enviada ao estoque do abrigo' : 'destino da doação'}
                   </span>
                 </span>
                 <ArrowRight className="ml-auto size-[18px] flex-none" aria-hidden="true" />
@@ -230,8 +245,15 @@ export function DetalhesItemPage() {
             )}
           </section>
 
-          {item.status === 'DISPONIVEL' && (
-            <MatchSugestao match={match.dados} loading={match.loading} erro={match.erro} />
+          {podeEnviarAoAbrigo && (
+            <MatchSugestao
+              match={match.dados}
+              loading={match.loading}
+              erro={match.erro}
+              onAdicionar={handleEnviarAoAbrigo}
+              adicionando={confirmacao.loading}
+              erroAcao={confirmacao.erro}
+            />
           )}
         </div>
       </div>

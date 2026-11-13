@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Mail, Phone } from 'lucide-react';
+import { Check, Heart, Mail, Phone, UserPlus } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorState } from '@/components/ErrorState';
 import { PageHeader } from '@/components/PageHeader';
-import { buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DoadorDialog } from '@/features/doadores/components/DoadorDialog';
+import { useCriarDoador } from '@/features/doadores/hooks/useCriarDoador';
 import { useDoadores } from '@/features/doadores/hooks/useDoadores';
+import type { DoadorFormData } from '@/features/doadores/schemas/doador.schema';
 import { cn } from '@/lib/utils';
 
 const CLASSE_CTA = cn(buttonVariants({ size: 'lg' }), 'h-[42px] rounded-xl px-[18px] text-[14.5px] font-semibold');
@@ -22,6 +26,36 @@ function iniciais(nome: string): string {
 
 export function DoadoresPage() {
   const { dados: doadores, loading, erro, recarregar } = useDoadores();
+  const { criar, loading: salvando, erro: erroCadastro } = useCriarDoador();
+  const [cadastrando, setCadastrando] = useState(false);
+  const [ultimoCadastrado, setUltimoCadastrado] = useState<string | null>(null);
+
+  async function handleSalvar(dados: DoadorFormData) {
+    const novo = await criar(dados);
+    if (!novo) return;
+    setCadastrando(false);
+    setUltimoCadastrado(novo.nome);
+    recarregar();
+  }
+
+  const dialogo = cadastrando && (
+    <DoadorDialog
+      onFechar={() => setCadastrando(false)}
+      onSalvar={handleSalvar}
+      loading={salvando}
+      erro={erroCadastro}
+    />
+  );
+
+  const aviso = ultimoCadastrado && (
+    <p role="status" className="mb-3 flex items-center gap-2 rounded-xl bg-disponivel px-4 py-3 text-sm font-semibold text-disponivel-foreground">
+      <Check className="size-4" aria-hidden="true" />
+      {ultimoCadastrado} foi cadastrado. Agora já dá para registrar uma doação em nome dele.
+      <Link to="/itens/novo" className="ml-auto underline underline-offset-3">
+        Registrar doação
+      </Link>
+    </p>
+  );
 
   const cabecalho = (
     <PageHeader
@@ -29,10 +63,16 @@ export function DoadoresPage() {
       titulo="Doadores"
       descricao="As pessoas por trás de cada peça. Os contatos servem só para combinar entregas com os abrigos."
       acoes={
-        <Link to="/itens/novo" className={CLASSE_CTA}>
-          <Heart aria-hidden="true" />
-          Registrar doação
-        </Link>
+        <>
+          <Link to="/itens/novo" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'h-[42px] rounded-xl px-[18px] text-[14.5px] font-semibold')}>
+            <Heart aria-hidden="true" />
+            Registrar doação
+          </Link>
+          <Button className={CLASSE_CTA} onClick={() => setCadastrando(true)}>
+            <UserPlus aria-hidden="true" />
+            Cadastrar doador
+          </Button>
+        </>
       }
     />
   );
@@ -66,8 +106,15 @@ export function DoadoresPage() {
         {cabecalho}
         <EmptyState
           titulo="Ainda ninguém por aqui"
-          descricao="Quando a primeira doação for registrada, quem doou aparece nesta lista."
+          descricao="Cadastre o primeiro doador para começar a registrar doações."
+          acao={
+            <Button className={CLASSE_CTA} onClick={() => setCadastrando(true)}>
+              <UserPlus aria-hidden="true" />
+              Cadastrar doador
+            </Button>
+          }
         />
+        {dialogo}
       </>
     );
   }
@@ -75,6 +122,7 @@ export function DoadoresPage() {
   return (
     <>
       {cabecalho}
+      {aviso}
       <p className="mx-0.5 mb-3 text-[13.5px] text-muted-foreground">
         {doadores.length} {doadores.length === 1 ? 'doador cadastrado' : 'doadores cadastrados'}
       </p>
@@ -99,6 +147,7 @@ export function DoadoresPage() {
           );
         })}
       </ul>
+      {dialogo}
     </>
   );
 }

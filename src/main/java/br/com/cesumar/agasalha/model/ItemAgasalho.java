@@ -2,6 +2,7 @@
 package br.com.cesumar.agasalha.model;
 
 import br.com.cesumar.agasalha.exception.DadosInvalidosException;
+import br.com.cesumar.agasalha.exception.ItemJaNoAbrigoException;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -41,6 +42,13 @@ public class ItemAgasalho {
         this.contatoDoador = contatoDoador;
         this.status = StatusItem.DISPONIVEL;
         this.dataCadastro = Instant.now();
+    }
+
+    public void alocarEm(String idAbrigo) {
+        if (abrigoId != null) {
+            throw new ItemJaNoAbrigoException(id);
+        }
+        abrigoId = idAbrigo;
     }
 
     public void validar() {

@@ -1,6 +1,7 @@
 
 package br.com.cesumar.agasalha.controller;
 
+import br.com.cesumar.agasalha.controller.dto.ItemResponse;
 import br.com.cesumar.agasalha.controller.dto.MatchRequest;
 import br.com.cesumar.agasalha.controller.dto.MatchResponse;
 import br.com.cesumar.agasalha.service.MatchService;
@@ -22,5 +23,10 @@ public class MatchController {
     @PostMapping
     public ResponseEntity<MatchResponse> sugerir(@Valid @RequestBody MatchRequest requisicao) {
         return ResponseEntity.ok(matchService.sugerir(requisicao.itemId()));
+    }
+
+    @PostMapping("/confirmacao")
+    public ResponseEntity<ItemResponse> confirmar(@Valid @RequestBody MatchRequest requisicao) {
+        return ResponseEntity.ok(matchService.confirmar(requisicao.itemId()));
     }
 }

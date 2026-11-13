@@ -138,6 +138,28 @@ class RelacionamentosIT extends MongoIT {
     }
 
     @Test
+    void criarDoacao_semAbrigo_persisteEItemRecebeSugestaoDoMatch() throws Exception {
+        Doador doador = salvarDoador();
+        Abrigo abrigo = salvarAbrigo(new Demanda(TipoPeca.CASACO, Tamanho.M, Genero.UNISSEX, 30, 0));
+
+        String corpo = mockMvc.perform(post("/api/doacoes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"doadorId\":\"" + doador.getId() + "\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String doacaoId = idDe(corpo);
+        assertNull(doacaoRepository.findById(doacaoId).orElseThrow().getAbrigoId());
+
+        String itemId = criarItemNaDoacao(doacaoId);
+
+        mockMvc.perform(post("/api/matches")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"itemId\":\"" + itemId + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.abrigoId").value(abrigo.getId()));
+    }
+
+    @Test
     void criarItemNaDoacao_doacaoInexistente_retorna404() throws Exception {
         mockMvc.perform(post("/api/doacoes/inexistente/itens")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -186,12 +208,19 @@ class RelacionamentosIT extends MongoIT {
     }
 
     @Test
-    void mudarEstadoDoItem_mantemReferenciasENaoAlteraDoadorNemAbrigo() throws Exception {
+    void enviarAoAbrigoEMudarEstado_mantemReferenciasEAtualizaSoOAbrigo() throws Exception {
         Doador doador = salvarDoador();
         Abrigo abrigo = salvarAbrigo(new Demanda(TipoPeca.CASACO, Tamanho.M, Genero.UNISSEX, 30, 0));
         String doacaoId = criarDoacao(doador.getId(), abrigo.getId());
         String itemId = criarItemNaDoacao(doacaoId);
 
+        mockMvc.perform(post("/api/itens/" + itemId + "/reserva"))
+                .andExpect(status().isConflict());
+        mockMvc.perform(post("/api/matches/confirmacao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"itemId\":\"" + itemId + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("DISPONIVEL"));
         mockMvc.perform(post("/api/itens/" + itemId + "/reserva"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("RESERVADO"))
@@ -205,8 +234,8 @@ class RelacionamentosIT extends MongoIT {
         assertEquals(StatusItem.ENTREGUE, item.getStatus());
         assertEquals(doacaoId, item.getDoacaoId());
         Abrigo inalterado = abrigoRepository.findById(abrigo.getId()).orElseThrow();
-        assertEquals(0, inalterado.getEstoqueAtual());
-        assertEquals(30, inalterado.getDemandas().get(0).deficit());
+        assertEquals(1, inalterado.getEstoqueAtual());
+        assertEquals(29, inalterado.getDemandas().get(0).deficit());
         assertEquals(1, doadorRepository.count());
     }
 

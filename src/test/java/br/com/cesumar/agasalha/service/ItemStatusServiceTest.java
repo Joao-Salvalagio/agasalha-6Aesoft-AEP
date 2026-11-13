@@ -2,6 +2,7 @@ package br.com.cesumar.agasalha.service;
 
 import br.com.cesumar.agasalha.controller.dto.ItemResponse;
 import br.com.cesumar.agasalha.exception.ItemNaoEncontradoException;
+import br.com.cesumar.agasalha.exception.ItemSemAbrigoException;
 import br.com.cesumar.agasalha.exception.TransicaoInvalidaException;
 import br.com.cesumar.agasalha.mapper.ItemMapper;
 import br.com.cesumar.agasalha.model.EstadoConservacao;
@@ -40,6 +41,7 @@ class ItemStatusServiceTest {
                 EstadoConservacao.USADO_BOM, "Ana", "ana@exemplo.com");
         item.setId(id);
         item.setStatus(status);
+        item.setAbrigoId("a1");
         return item;
     }
 
@@ -100,6 +102,30 @@ class ItemStatusServiceTest {
         when(repository.findById("id4")).thenReturn(Optional.of(item));
 
         assertThrows(TransicaoInvalidaException.class, () -> service.entregar("id4"));
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void reservar_itemSemAbrigo_lancaItemSemAbrigoENaoSalva() {
+        ItemAgasalho item = item("id5", StatusItem.DISPONIVEL);
+        item.setAbrigoId(null);
+        when(repository.findById("id5")).thenReturn(Optional.of(item));
+
+        assertThrows(ItemSemAbrigoException.class, () -> service.reservar("id5"));
+
+        assertEquals(StatusItem.DISPONIVEL, item.getStatus());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void entregar_itemSemAbrigo_lancaItemSemAbrigoENaoSalva() {
+        ItemAgasalho item = item("id6", StatusItem.RESERVADO);
+        item.setAbrigoId(null);
+        when(repository.findById("id6")).thenReturn(Optional.of(item));
+
+        assertThrows(ItemSemAbrigoException.class, () -> service.entregar("id6"));
+
+        assertEquals(StatusItem.RESERVADO, item.getStatus());
         verify(repository, never()).save(any());
     }
 }
