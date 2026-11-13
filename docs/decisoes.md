@@ -161,3 +161,104 @@ O repositório passa a ter dois runtimes: Maven para a API e npm para o frontend
 continua restrita ao código Java; a evidência de 70% do edital é sobre a API, que
 concentra as regras de negócio. A Entrega 2 evolui a interface dentro de
 `apps/web`, sem retornar a páginas estáticas.
+
+## ADR-015 — Saída do João Miguel e redivisão da Entrega 2
+
+**Contexto:** o João Miguel Silva Salvalagio (RA 26014105-2) migra o curso de
+presencial para EAD depois do fechamento da Entrega 1 (`v1.0`) e não participa da
+Entrega 2. A fatia dele na Entrega 2 — agregado `Abrigo` com `demandas`
+aninhadas, seed, e a condução do fechamento — fica sem dono. A regra 6 do
+`AGENTS.md` diz que mexer em escopo é decisão dos três, e a `docs/divisao-tarefas.md`
+é append-only por força do ADR-012, então a divisão original permanece registrada.
+**Decisão:** a Entrega 2 passa a ser executada por dois integrantes, Bruno Koji
+Fujisaki e Eric Delefrati Rocha Leite. A fatia do João é dividida pela costura que
+já existia, não meio a meio:
+
+- **Bruno** absorve o domínio puro do abrigo — `model/Abrigo`, `model/Demanda`,
+  invariantes (RN-08), `deficit()` (RN-09) e o seed de abrigos e demandas. A RN-14
+  do motor de matching, que já era dele, consome `deficit()` diretamente; juntando,
+  o matching deixa de depender de código de terceiro.
+- **Eric** absorve a persistência e o wiring — `AbrigoRepository`, `AbrigoService`,
+  `AbrigoMapper` (RN-07) — e conduz o fechamento: `release/entrega-2` e tag `v2.0`.
+  Ele já era dono dos endpoints `/api/abrigos` e `/api/abrigos/{id}/demandas`, que
+  na divisão original chamavam um service de outra pessoa.
+
+A condução do fechamento não vai para o Bruno porque ele já mantém o quadro de
+tarefas, que é critério próprio de metodologia na Entrega 2.
+
+A mudança de escopo foi acordada previamente entre os três integrantes; este ADR
+registra uma decisão já tomada, e não uma proposta. A exceção à regra 6 do
+`AGENTS.md` está satisfeita.
+**Consequência:** a seção "Entrega 2" de `docs/divisao-tarefas.md` deixa de valer e
+é substituída pela seção "Entrega 2 — redivisão após ADR-015", adicionada ao fim do
+mesmo documento; as fatias originais ficam no arquivo como registro histórico. O
+mapa "Integrantes" e a seção "Para a IA — onboarding por prompt" continuam citando
+o João: quem se apresentar como João na Entrega 2 é redirecionado conforme a nova
+seção. A ficha de identificação da Entrega 2 (seção 11 do edital) é preenchida
+pelos dois integrantes remanescentes; manter ou não o RA do João na ficha é
+decisão deles com a coordenação, fora do escopo deste repositório. O histórico de
+commits, Pull Requests e branches da Entrega 1 permanece intocado — o ADR-013
+continua valendo e nada é apagado.
+
+## ADR-016 — Doadores, doações e vínculo do item (Entrega 2)
+
+**Contexto:** RN-15 pede coleções próprias para doador e doação e referências sem
+duplicar dados. O planejamento da Entrega 2 lista os endpoints `/api/abrigos`,
+`/api/abrigos/{id}/demandas` e `/api/doadores`, mas não diz como uma doação nasce,
+como um item passa a ter `doacaoId`, nem o que acontece ao remover um registro
+referenciado. Também deixa o `nomeDoador`/`contatoDoador` de RN-02 em conflito com
+a frase "não há duplicação de dados do doador dentro de `item`" de RN-15.
+**Decisão:** quatro pontos, todos aditivos e sem alterar o contrato da Entrega 1:
+1. **Doação e item vinculado:** `POST /api/doacoes` (valida `doadorId` e `abrigoId`),
+   `GET /api/doacoes/{id}` e `POST /api/doacoes/{id}/itens`, que cria um item com
+   `doacaoId`. `item` ganha `doacaoId` e `abrigoId` opcionais e `ItemResponse` os
+   devolve, nulos nos itens da Entrega 1. O `abrigoId` do item não é preenchido por
+   este código: o `POST /api/matches` só sugere (`docs/http-api.md`), então quem
+   passar a registrar um casamento usa esse campo.
+2. **RN-02 só sem doação:** `nomeDoador` e `contatoDoador` continuam obrigatórios
+   em `POST /api/itens`. Item criado dentro de uma doação não os guarda; o doador
+   vem navegando `item → doacao → doador`.
+3. **Integridade referencial:** doador com doação, e abrigo com doação ou item
+   referenciando, não podem ser removidos (`409`).
+4. **Demandas por posição:** `PUT` e `DELETE` em
+   `/api/abrigos/{id}/demandas/{posicao}` usam a posição na lista (base 0), como o
+   agregado `Abrigo` já expõe; `DemandaResponse` devolve a `posicao`.
+   **Consequência:** o frontend de `apps/web` mostra nome e contato do doador só para
+   itens da Entrega 1; para itens de doação ele precisaria resolver o doador pelas
+   duas referências. Cada ponto é isolado e pode ser revertido sem mexer nos demais.
+
+## ADR-017 — Doação sem abrigo; o destino vem do matching
+
+**Contexto:** o frontend passou a registrar a doação pelo doador cadastrado
+(`POST /api/doacoes` e depois `POST /api/doacoes/{id}/itens`). Com `abrigoId`
+obrigatório na doação, o doador teria de escolher o abrigo antes de a peça existir,
+o que tira a função do `POST /api/matches` (RN-10 a RN-14), que sugere o abrigo a
+partir da peça.
+**Decisão:** `abrigoId` passa a ser opcional em `POST /api/doacoes`. `doadorId`
+continua obrigatório e precisa existir (`404`). Quando `abrigoId` vem preenchido,
+precisa existir (`404`); em branco é rejeitado (`400`). Doação sem abrigo é válida e
+`DoacaoResponse` devolve `abrigoId` nulo. Mudança aditiva: quem já enviava `abrigoId`
+não é afetado.
+**Consequência:** o destino de uma peça só é gravado quando existir o passo de
+confirmar o match, que continua fora desta decisão. Enquanto isso, o item de uma
+doação sem abrigo mostra "sem destino definido" e recebe apenas a sugestão.
+
+## ADR-018 — Enviar a peça ao abrigo a reserva e libera a entrega
+
+**Contexto:** `POST /api/matches` só sugere (ADR-016): nada grava o destino da peça,
+soma ao estoque do abrigo ou abate a demanda. Reserva e entrega, por sua vez, mudavam
+o status sem que a peça tivesse qualquer abrigo.
+**Decisão:** dois pontos ligados.
+1. `POST /api/matches/confirmacao`, com o corpo `{ "itemId" }` do match, recalcula o
+   match no servidor (RN-10 a RN-14) e o aplica: grava o `abrigoId` no item e soma 1 ao
+   `estoqueAtual` e à `quantidadeAtendida` da demanda escolhida e reserva a peça
+   (`DISPONIVEL` aplica `RESERVAR`; outro status fica como está). Item que já tem
+   `abrigoId` responde `409`; sem abrigo compatível responde `404`.
+2. `POST /api/itens/{id}/reserva` e `/entrega` exigem que o item já tenha `abrigoId`;
+   sem ele respondem `409`. As transições de RN-04 continuam as mesmas; na prática o
+   caminho é enviar ao abrigo (reservado) e depois entregar.
+**Consequência:** muda o contrato da Entrega 1: reservar e entregar deixam de funcionar
+em peça sem abrigo, e o mural não oferece mais "Reservar" direto na linha (o resumo do
+item não traz o `abrigoId`). O servidor decide o abrigo, o cliente não o envia. O Mongo
+não tem transação nesta PoC: o abrigo é salvo antes do item, então uma falha entre os
+dois `save` deixaria o estoque somado sem o item ligado. Risco aceito para a PoC.

@@ -1,5 +1,5 @@
+import { handleResponse } from '@/lib/http';
 import type {
-  ApiError,
   ItemCreateRequest,
   ItemFiltroParams,
   ItemResponse,
@@ -8,36 +8,6 @@ import type {
 } from '../interfaces/item.interface';
 
 const API_BASE_URL = '/api/itens';
-
-export interface ApiExceptionData {
-  errorData: ApiError;
-}
-
-export function criarApiException(errorData: ApiError): Error & ApiExceptionData {
-  const err = new Error(errorData.erro || 'Erro na requisição') as Error & ApiExceptionData;
-  err.errorData = errorData;
-  return err;
-}
-
-export function ehApiException(err: unknown): err is Error & ApiExceptionData {
-  return err instanceof Error && 'errorData' in err;
-}
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const errorData: ApiError = await response.json().catch(() => ({
-      timestamp: new Date().toISOString(),
-      status: response.status,
-      erro: `Erro na comunicação com o servidor (${response.status})`,
-      detalhes: [],
-    }));
-    throw criarApiException(errorData);
-  }
-  if (response.status === 204) {
-    return {} as T;
-  }
-  return response.json();
-}
 
 export const itemService = {
   async listar(filtros?: ItemFiltroParams): Promise<ItemSummaryResponse[]> {

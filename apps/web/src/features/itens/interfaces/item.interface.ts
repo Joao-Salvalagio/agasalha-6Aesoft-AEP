@@ -18,10 +18,12 @@ export interface ItemResponse {
   tamanho: Tamanho;
   genero: Genero;
   estadoConservacao: EstadoConservacao;
-  nomeDoador: string;
-  contatoDoador: string;
+  nomeDoador: string | null;
+  contatoDoador: string | null;
   status: StatusItem;
   dataCadastro: string;
+  doacaoId: string | null;
+  abrigoId: string | null;
 }
 
 export interface ItemCreateRequest {
@@ -33,7 +35,7 @@ export interface ItemCreateRequest {
   contatoDoador: string;
 }
 
-export interface ItemUpdateRequest extends ItemCreateRequest {}
+export type ItemUpdateRequest = ItemCreateRequest;
 
 export interface ItemFiltroParams {
   tipoPeca?: TipoPeca;
@@ -42,9 +44,4 @@ export interface ItemFiltroParams {
   status?: StatusItem;
 }
 
-export interface ApiError {
-  timestamp: string;
-  status: number;
-  erro: string;
-  detalhes: string[];
-}
+export type { ApiError } from '@/lib/http';

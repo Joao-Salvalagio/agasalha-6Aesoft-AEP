@@ -97,3 +97,156 @@ em branco. Violação → `400`.
 `POST /api/itens/{id}/reserva` aplica `DISPONIVEL → RESERVADO`.
 `POST /api/itens/{id}/entrega` aplica `RESERVADO → ENTREGUE`.
 Fora dessas transições: `409` (RN-04).
+
+---
+
+## Entrega 2 — abrigos, doadores e doações
+
+Mesmo formato de erro da Entrega 1. `409` também para remoção de registro
+referenciado (ADR-016).
+
+### Abrigos e demandas
+
+| Método | Caminho | Entrada | Sucesso | Erros |
+|---|---|---|---|---|
+| `POST` | `/api/abrigos` | `AbrigoCreateRequest` | `201` + `Location` + `AbrigoResponse` | `400` |
+| `GET` | `/api/abrigos` | — | `200` + lista de `AbrigoResponse` | — |
+| `GET` | `/api/abrigos/{id}` | — | `200` + `AbrigoResponse` | `404` |
+| `PUT` | `/api/abrigos/{id}` | `AbrigoUpdateRequest` | `200` + `AbrigoResponse` | `400`, `404` |
+| `DELETE` | `/api/abrigos/{id}` | — | `204` | `404`, `409` |
+| `GET` | `/api/abrigos/{id}/demandas` | — | `200` + lista de `DemandaResponse` | `404` |
+| `POST` | `/api/abrigos/{id}/demandas` | `DemandaCreateRequest` | `201` + `Location` + `DemandaResponse` | `400`, `404` |
+| `PUT` | `/api/abrigos/{id}/demandas/{posicao}` | `DemandaUpdateRequest` | `200` + `DemandaResponse` | `400`, `404` |
+| `DELETE` | `/api/abrigos/{id}/demandas/{posicao}` | — | `204` | `404` |
+
+`{posicao}` é o índice da demanda na lista do abrigo, começando em `0`. Posição
+inexistente → `404`; valor não numérico → `400`.
+
+### `AbrigoCreateRequest`
+
+```json
+{
+  "nome": "Abrigo Esperanca",
+  "endereco": {
+    "logradouro": "Rua das Flores",
+    "numero": "120",
+    "bairro": "Centro",
+    "cidade": "Maringa",
+    "estado": "PR"
+  },
+  "capacidadeEstoque": 100,
+  "estoqueAtual": 20,
+  "demandas": [
+    { "tipoPeca": "CASACO", "tamanho": "M", "genero": "UNISSEX", "quantidadeNecessaria": 30, "quantidadeAtendida": 10 }
+  ]
+}
+```
+
+`estoqueAtual`, `demandas` e `quantidadeAtendida` são opcionais (padrão `0`, lista
+vazia e `0`). `numero` e `bairro` são opcionais. Validação de RN-08:
+`capacidadeEstoque > 0`, `estoqueAtual >= 0`, `quantidadeNecessaria > 0` e
+`quantidadeAtendida <= quantidadeNecessaria`. Violação → `400`.
+
+`AbrigoUpdateRequest` tem `nome`, `endereco`, `capacidadeEstoque` e `estoqueAtual`,
+todos obrigatórios; as demandas só mudam pelos endpoints de demanda.
+`DemandaUpdateRequest` tem os mesmos campos de `DemandaCreateRequest`, com
+`quantidadeAtendida` obrigatório.
+
+### `AbrigoResponse`
+
+```json
+{
+  "id": "66b0c1e2f4a1b23c45d6e7a1",
+  "nome": "Abrigo Esperanca",
+  "endereco": {
+    "logradouro": "Rua das Flores",
+    "numero": "120",
+    "bairro": "Centro",
+    "cidade": "Maringa",
+    "estado": "PR"
+  },
+  "capacidadeEstoque": 100,
+  "estoqueAtual": 20,
+  "demandas": [
+    {
+      "posicao": 0,
+      "tipoPeca": "CASACO",
+      "tamanho": "M",
+      "genero": "UNISSEX",
+      "quantidadeNecessaria": 30,
+      "quantidadeAtendida": 10,
+      "deficit": 20
+    }
+  ]
+}
+```
+
+### Doadores
+
+| Método | Caminho | Entrada | Sucesso | Erros |
+|---|---|---|---|---|
+| `POST` | `/api/doadores` | `DoadorCreateRequest` | `201` + `Location` + `DoadorResponse` | `400` |
+| `GET` | `/api/doadores` | — | `200` + lista de `DoadorResponse` | — |
+| `GET` | `/api/doadores/{id}` | — | `200` + `DoadorResponse` | `404` |
+| `PUT` | `/api/doadores/{id}` | `DoadorUpdateRequest` | `200` + `DoadorResponse` | `400`, `404` |
+| `DELETE` | `/api/doadores/{id}` | — | `204` | `404`, `409` |
+
+```json
+{ "nome": "Ana Souza", "contato": "ana@exemplo.com" }
+```
+
+`nome` e `contato` obrigatórios e não em branco. `409` quando o doador tem doações.
+
+### Doações
+
+| Método | Caminho | Entrada | Sucesso | Erros |
+|---|---|---|---|---|
+| `POST` | `/api/doacoes` | `DoacaoCreateRequest` | `201` + `Location` + `DoacaoResponse` | `400`, `404` (doador ou abrigo) |
+| `GET` | `/api/doacoes/{id}` | — | `200` + `DoacaoResponse` | `404` |
+| `POST` | `/api/doacoes/{id}/itens` | `ItemDoacaoRequest` | `201` + `Location` (`/api/itens/{id}`) + `ItemResponse` | `400`, `404` |
+
+```json
+{ "doadorId": "66b0c1e2f4a1b23c45d6e7b1", "abrigoId": "66b0c1e2f4a1b23c45d6e7a1" }
+```
+
+`DoacaoResponse` devolve só os identificadores e a data (RN-15):
+
+```json
+{
+  "id": "66b0c1e2f4a1b23c45d6e7c1",
+  "doadorId": "66b0c1e2f4a1b23c45d6e7b1",
+  "abrigoId": "66b0c1e2f4a1b23c45d6e7a1",
+  "dataDoacao": "2026-06-05T10:00:00Z"
+}
+```
+
+`ItemDoacaoRequest` tem `tipoPeca`, `tamanho`, `genero` e `estadoConservacao`,
+todos obrigatórios. O item criado não guarda dados do doador (ADR-016).
+`ItemResponse` ganha `doacaoId` e `abrigoId`, ambos opcionais e nulos para itens
+da Entrega 1.
+
+### Atualização — `abrigoId` opcional em `DoacaoCreateRequest` (ADR-017)
+
+`POST /api/doacoes` aceita o corpo só com o doador:
+
+```json
+{ "doadorId": "66b0c1e2f4a1b23c45d6e7b1" }
+```
+
+`abrigoId` é opcional. Se vier, precisa existir (`404`) e não pode ser vazio (`400`).
+`DoacaoResponse.abrigoId` é nulo quando a doação não tem abrigo. Quem envia os dois
+campos continua funcionando como antes.
+
+### Envio da peça ao abrigo (ADR-018)
+
+| Método | Caminho | Entrada | Sucesso | Erros |
+|---|---|---|---|---|
+| `POST` | `/api/matches/confirmacao` | `{ "itemId": "..." }` | `200` + `ItemResponse` | `400`, `404`, `409` |
+
+Aplica o match do item: grava o `abrigoId`, soma 1 ao estoque do abrigo e à
+`quantidadeAtendida` da demanda e reserva a peça (`DISPONIVEL` passa a `RESERVADO`).
+`404` quando o item não existe ou
+não há abrigo compatível; `409` quando o item já está em um abrigo.
+
+`POST /api/itens/{id}/reserva` e `POST /api/itens/{id}/entrega` passam a responder `409`
+também quando o item ainda não tem `abrigoId`.

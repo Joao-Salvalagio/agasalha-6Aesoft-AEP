@@ -1,3 +1,4 @@
+
 package br.com.cesumar.agasalha.exception;
 
 import br.com.cesumar.agasalha.controller.dto.ApiError;
@@ -39,8 +40,48 @@ public class GlobalExceptionHandler {
         return construir(HttpStatus.NOT_FOUND, ex.getMessage(), List.of());
     }
 
+    @ExceptionHandler(AbrigoNaoEncontradoException.class)
+    public ResponseEntity<ApiError> tratarAbrigoNaoEncontrado(AbrigoNaoEncontradoException ex) {
+        return construir(HttpStatus.NOT_FOUND, ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(DoadorNaoEncontradoException.class)
+    public ResponseEntity<ApiError> tratarDoadorNaoEncontrado(DoadorNaoEncontradoException ex) {
+        return construir(HttpStatus.NOT_FOUND, ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(DoacaoNaoEncontradaException.class)
+    public ResponseEntity<ApiError> tratarDoacaoNaoEncontrada(DoacaoNaoEncontradaException ex) {
+        return construir(HttpStatus.NOT_FOUND, ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(DemandaNaoEncontradaException.class)
+    public ResponseEntity<ApiError> tratarDemandaNaoEncontrada(DemandaNaoEncontradaException ex) {
+        return construir(HttpStatus.NOT_FOUND, ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(MatchNaoEncontradoException.class)
+    public ResponseEntity<ApiError> tratarMatchNaoEncontrado(MatchNaoEncontradoException ex) {
+        return construir(HttpStatus.NOT_FOUND, ex.getMessage(), List.of());
+    }
+
     @ExceptionHandler(TransicaoInvalidaException.class)
     public ResponseEntity<ApiError> tratarTransicaoInvalida(TransicaoInvalidaException ex) {
+        return construir(HttpStatus.CONFLICT, ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(ItemSemAbrigoException.class)
+    public ResponseEntity<ApiError> tratarItemSemAbrigo(ItemSemAbrigoException ex) {
+        return construir(HttpStatus.CONFLICT, ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(ItemJaNoAbrigoException.class)
+    public ResponseEntity<ApiError> tratarItemJaNoAbrigo(ItemJaNoAbrigoException ex) {
+        return construir(HttpStatus.CONFLICT, ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(RegistroEmUsoException.class)
+    public ResponseEntity<ApiError> tratarRegistroEmUso(RegistroEmUsoException ex) {
         return construir(HttpStatus.CONFLICT, ex.getMessage(), List.of());
     }
 

@@ -4,29 +4,47 @@
     "tamanho": "M",
     "genero": "UNISSEX",
     "estadoConservacao": "USADO_BOM",
-    "nomeDoador": "Ana Souza",
-    "contatoDoador": "ana@exemplo.com",
     "status": "DISPONIVEL",
-    "dataCadastro": "2026-06-01T10:00:00Z"
+    "dataCadastro": { "$date": "2026-06-01T10:00:00Z" },
+    "doacaoId": "665f00000000000000000201"
   },
   {
     "tipoPeca": "COBERTOR",
     "tamanho": "G",
     "genero": "UNISSEX",
     "estadoConservacao": "NOVO",
-    "nomeDoador": "Carlos Lima",
-    "contatoDoador": "(11) 90000-0000",
     "status": "DISPONIVEL",
-    "dataCadastro": "2026-06-02T09:30:00Z"
+    "dataCadastro": { "$date": "2026-06-02T09:30:00Z" },
+    "doacaoId": "665f00000000000000000202"
   },
   {
     "tipoPeca": "BLUSA",
     "tamanho": "P",
     "genero": "FEMININO",
     "estadoConservacao": "USADO_REGULAR",
-    "nomeDoador": "Marina Alves",
-    "contatoDoador": "marina@exemplo.com",
     "status": "RESERVADO",
-    "dataCadastro": "2026-06-03T14:15:00Z"
+    "dataCadastro": { "$date": "2026-06-03T14:15:00Z" },
+    "doacaoId": "665f00000000000000000203",
+    "abrigoId": "665f00000000000000000102"
+  },
+  {
+    "tipoPeca": "CASACO",
+    "tamanho": "G",
+    "genero": "MASCULINO",
+    "estadoConservacao": "USADO_BOM",
+    "nomeDoador": "Paulo Ferreira",
+    "contatoDoador": "paulo@exemplo.com",
+    "status": "DISPONIVEL",
+    "dataCadastro": { "$date": "2026-06-04T08:00:00Z" }
+  },
+  {
+    "tipoPeca": "MEIA",
+    "tamanho": "M",
+    "genero": "UNISSEX",
+    "estadoConservacao": "NOVO",
+    "nomeDoador": "Luciana Prado",
+    "contatoDoador": "(44) 98888-1111",
+    "status": "DISPONIVEL",
+    "dataCadastro": { "$date": "2026-06-05T11:20:00Z" }
   }
 ]
